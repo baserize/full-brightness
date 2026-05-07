@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @Bindable var model: AppModel
     @State private var launchAtLoginState = LaunchAtLoginController().state
     @State private var launchAtLoginError: String?
 
@@ -10,10 +9,6 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section("settings.section.general") {
-                Toggle(isOn: $model.autoMaxEnabled) {
-                    Label("action.auto_on_connect", systemImage: "arrow.triangle.2.circlepath")
-                }
-
                 Toggle(isOn: launchAtLoginBinding) {
                     Label("settings.launch_at_login", systemImage: "power")
                 }

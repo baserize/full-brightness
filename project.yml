@@ -1,6 +1,6 @@
 name: FullBrightness
 options:
-  bundleIdPrefix: com.hellosunghyun
+  bundleIdPrefix: com.baserize
   deploymentTarget:
     macOS: "26.0"
 settings:
@@ -33,7 +33,7 @@ targets:
         embed: true
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.hellosunghyun.fullbrightness
+        PRODUCT_BUNDLE_IDENTIFIER: com.baserize.fullbrightness
         PRODUCT_NAME: FullBrightness
         INFOPLIST_FILE: Sources/App/Info.plist
         CODE_SIGN_ENTITLEMENTS: Sources/App/FullBrightness.entitlements
@@ -62,7 +62,7 @@ targets:
       - path: Sources/Controls
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.hellosunghyun.fullbrightness.controls
+        PRODUCT_BUNDLE_IDENTIFIER: com.baserize.fullbrightness.controls
         PRODUCT_NAME: FullBrightnessControls
         INFOPLIST_FILE: Sources/Controls/Info.plist
         CODE_SIGN_ENTITLEMENTS: Sources/Controls/FullBrightnessControls.entitlements

@@ -8,6 +8,7 @@
 "action.set_all.all_displays" = "All displays 100%";
 "action.auto_on_connect" = "Auto 100% on connect";
 "action.open_app" = "Open Full Brightness";
+"action.settings" = "Settings";
 "action.quit" = "Quit";
 
 "settings.section.general" = "General";

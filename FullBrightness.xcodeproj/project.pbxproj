@@ -454,7 +454,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.hellosunghyun.fullbrightness.controls;
+				PRODUCT_BUNDLE_IDENTIFIER = com.baserize.fullbrightness.controls;
 				PRODUCT_NAME = FullBrightnessControls;
 				SDKROOT = macosx;
 			};
@@ -538,7 +538,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.hellosunghyun.fullbrightness.controls;
+				PRODUCT_BUNDLE_IDENTIFIER = com.baserize.fullbrightness.controls;
 				PRODUCT_NAME = FullBrightnessControls;
 				SDKROOT = macosx;
 			};
@@ -556,7 +556,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.hellosunghyun.fullbrightness;
+				PRODUCT_BUNDLE_IDENTIFIER = com.baserize.fullbrightness;
 				PRODUCT_NAME = FullBrightness;
 				SDKROOT = macosx;
 			};
@@ -574,7 +574,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.hellosunghyun.fullbrightness;
+				PRODUCT_BUNDLE_IDENTIFIER = com.baserize.fullbrightness;
 				PRODUCT_NAME = FullBrightness;
 				SDKROOT = macosx;
 			};

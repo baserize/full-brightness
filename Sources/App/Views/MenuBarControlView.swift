@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MenuBarControlView: View {
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openSettings) private var openSettings
     @Bindable var model: AppModel
 
     var body: some View {
@@ -75,6 +76,13 @@ struct MenuBarControlView: View {
             Button("action.open_app") {
                 NSApp.activate(ignoringOtherApps: true)
                 openWindow(id: "main")
+            }
+
+            Button {
+                NSApp.activate(ignoringOtherApps: true)
+                openSettings()
+            } label: {
+                Label("action.settings", systemImage: "gearshape")
             }
 
             Button("action.quit") {

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DisplayDashboardView: View {
+    @Environment(\.openSettings) private var openSettings
     @Bindable var model: AppModel
 
     var body: some View {
@@ -27,6 +28,13 @@ struct DisplayDashboardView: View {
                 } label: {
                     Label("action.set_all.short", systemImage: "sun.max.fill")
                 }
+
+                Button {
+                    openSettings()
+                } label: {
+                    Label("action.settings", systemImage: "gearshape")
+                }
+                .help("action.settings")
             }
         }
     }

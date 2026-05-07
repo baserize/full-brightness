@@ -5,7 +5,8 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROJECT_NAME="FullBrightness"
 APP_NAME="FullBrightness"
 DISPLAY_NAME="Full Brightness"
-APP_BUNDLE_IDENTIFIER="com.hellosunghyun.fullbrightness"
+APP_BUNDLE_IDENTIFIER="com.baserize.fullbrightness"
+LEGACY_APP_BUNDLE_IDENTIFIERS=("com.hellosunghyun.fullbrightness")
 DERIVED_DATA_PATH="$ROOT_DIR/.build/DerivedData"
 CONFIGURATION="Debug"
 INSTALL_PATH="${FULL_BRIGHTNESS_INSTALL_PATH:-/Applications/$DISPLAY_NAME.app}"
@@ -41,6 +42,22 @@ bundle_identifier() {
   /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$1/Contents/Info.plist" 2>/dev/null || true
 }
 
+is_known_install_identifier() {
+  local identifier="$1"
+
+  if [[ "$identifier" == "$APP_BUNDLE_IDENTIFIER" ]]; then
+    return 0
+  fi
+
+  for legacy_identifier in "${LEGACY_APP_BUNDLE_IDENTIFIERS[@]}"; do
+    if [[ "$identifier" == "$legacy_identifier" ]]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
 register_installed_app() {
   local installed_app_path="$1"
   local extension_path="$installed_app_path/Contents/PlugIns/FullBrightnessControls.appex"
@@ -68,9 +85,14 @@ install_app_bundle() {
     local existing_identifier
     existing_identifier="$(bundle_identifier "$INSTALL_PATH")"
 
-    if [[ "$existing_identifier" != "$APP_BUNDLE_IDENTIFIER" ]]; then
+    if ! is_known_install_identifier "$existing_identifier"; then
       echo "Refusing to replace $INSTALL_PATH because its bundle identifier is '$existing_identifier'." >&2
       exit 1
+    fi
+
+    local existing_extension_path="$INSTALL_PATH/Contents/PlugIns/FullBrightnessControls.appex"
+    if [[ -d "$existing_extension_path" ]]; then
+      pluginkit -r "$existing_extension_path" >/dev/null 2>&1 || true
     fi
   fi
 

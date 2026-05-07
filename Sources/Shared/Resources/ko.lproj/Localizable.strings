@@ -8,6 +8,7 @@
 "action.set_all.all_displays" = "모든 모니터 100%";
 "action.auto_on_connect" = "연결 시 자동 100%";
 "action.open_app" = "Full Brightness 열기";
+"action.settings" = "설정";
 "action.quit" = "종료";
 
 "settings.section.general" = "일반";

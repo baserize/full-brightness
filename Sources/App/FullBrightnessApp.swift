@@ -27,7 +27,7 @@ struct FullBrightnessApp: App {
         .menuBarExtraStyle(.window)
 
         Settings {
-            SettingsView(model: model)
+            SettingsView()
         }
     }
 }
