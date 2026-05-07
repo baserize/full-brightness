@@ -6,8 +6,6 @@ options:
 configs:
   Debug: debug
   Release: release
-  Direct Debug: debug
-  Direct Release: release
 settings:
   base:
     CURRENT_PROJECT_VERSION: 20260508001
@@ -22,10 +20,8 @@ settings:
     ENABLE_USER_SCRIPT_SANDBOXING: NO
   configs:
     Debug:
-      SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
-    Direct Debug:
       SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG DIRECT_DISTRIBUTION
-    Direct Release:
+    Release:
       SWIFT_ACTIVE_COMPILATION_CONDITIONS: DIRECT_DISTRIBUTION
 targets:
   FullBrightness:
@@ -48,14 +44,9 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.baserize.fullbrightness
         PRODUCT_NAME: FullBrightness
         INFOPLIST_FILE: Sources/App/Info.plist
-        CODE_SIGN_ENTITLEMENTS: Sources/App/FullBrightness.entitlements
+        CODE_SIGN_ENTITLEMENTS: Sources/App/FullBrightnessDirect.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: NO
-      configs:
-        Direct Debug:
-          CODE_SIGN_ENTITLEMENTS: Sources/App/FullBrightnessDirect.entitlements
-        Direct Release:
-          CODE_SIGN_ENTITLEMENTS: Sources/App/FullBrightnessDirect.entitlements
     info:
       path: Sources/App/Info.plist
       properties:
@@ -70,7 +61,6 @@ targets:
         LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
         NSHumanReadableCopyright: Copyright © 2026 Sunghyun Kim.
         NSPrincipalClass: NSApplication
-        ITSAppUsesNonExemptEncryption: false
   FullBrightnessControls:
     type: app-extension
     platform: macOS
@@ -95,7 +85,6 @@ targets:
         CFBundlePackageType: XPC!
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        ITSAppUsesNonExemptEncryption: false
         LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension

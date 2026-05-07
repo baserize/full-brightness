@@ -20,7 +20,6 @@ Current GitHub release: [`2026.05.08.001`](https://github.com/baserize/full-brig
 - Apple Silicon or Intel Mac
 - Xcode 26+ only when building from source
 - For the default Direct build: Apple-native displays exposed through macOS `DisplayServices`, or displays that expose writable brightness through public IOKit brightness parameters
-- For the Store-safe build: a display path that exposes writable brightness through public IOKit brightness parameters
 
 Some monitors, docks, cables, KVMs, and DisplayLink-style adapters block brightness control. Full Brightness still lists those displays, but marks them as unsupported instead of changing them blindly.
 
@@ -81,7 +80,7 @@ curl -L -o Full-Brightness-2026.05.08.001.dmg \
 open Full-Brightness-2026.05.08.001.dmg
 ```
 
-The DMG and app are signed with Developer ID and notarized by Apple for distribution outside the Mac App Store. A ZIP asset is also published for automation, but the DMG is the default install path.
+The DMG and app are signed with Developer ID and notarized by Apple for direct distribution. A ZIP asset is also published for automation, but the DMG is the default install path.
 
 ### Homebrew
 
@@ -129,7 +128,7 @@ Open Shortcuts or Spotlight and search for Full Brightness. The app provides loc
 
 ## Display Support
 
-The default build is the **Direct distribution** build. It uses Apple's private `DisplayServices` entry points through runtime symbol loading so Apple built-in displays and other Apple-native brightness paths can be controlled outside the Mac App Store.
+The default build is the **Direct distribution** build. It uses Apple's private `DisplayServices` entry points through runtime symbol loading so Apple built-in displays and other Apple-native brightness paths can be controlled in direct distribution builds.
 
 The Direct build falls back to public IOKit `kIODisplayBrightnessKey` when `DisplayServices` is unavailable for a display.
 
@@ -145,18 +144,12 @@ Unsupported displays usually fail because the display, dock, cable, adapter, or 
 ./script/build_and_run.sh --verify
 ```
 
-By default, the build script uses `Direct Debug`, which includes `DIRECT_DISTRIBUTION` and the private `DisplayServices` backend.
+By default, the build script uses `Debug`, which includes `DIRECT_DISTRIBUTION` and the private `DisplayServices` backend.
 
-For a Direct Release build without installing or launching:
+For a Release build without installing or launching:
 
 ```sh
 ./script/build_and_run.sh --release --build-only
-```
-
-For the Store-safe public-API build:
-
-```sh
-./script/build_and_run.sh --store --release --build-only
 ```
 
 The script regenerates `FullBrightness.xcodeproj` from `project.yml`, builds the app with Xcode, and can install the app to `/Applications/Full Brightness.app` so macOS can discover its Control Center extension.
@@ -165,7 +158,7 @@ The script regenerates `FullBrightness.xcodeproj` from `project.yml`, builds the
 
 The public GitHub release tag uses the date-based version `2026.05.08.001`.
 
-Apple bundle version fields use App Store-compatible numeric forms:
+Apple bundle version fields use standard numeric forms:
 
 - `CFBundleShortVersionString`: `2026.5.8`
 - `CFBundleVersion`: `20260508001`
@@ -178,7 +171,7 @@ Use Developer ID distribution for the private-API build:
 ./script/package_direct.sh
 ```
 
-The script requires a `Developer ID Application` certificate for public direct distribution. It archives `Direct Release`, exports with `packaging/ExportOptions-DeveloperID.plist`, stages the app as `Full Brightness.app`, creates both DMG and ZIP artifacts, prints SHA-256 values, and verifies the exported signature. Set `NOTARYTOOL_PROFILE` to submit the app and DMG with `xcrun notarytool`, then staple both before the final artifacts are published.
+The script requires a `Developer ID Application` certificate for public direct distribution. It archives `Release`, exports with `packaging/ExportOptions-DeveloperID.plist`, stages the app as `Full Brightness.app`, creates both DMG and ZIP artifacts, prints SHA-256 values, and verifies the exported signature. Set `NOTARYTOOL_PROFILE` to submit the app and DMG with `xcrun notarytool`, then staple both before the final artifacts are published.
 
 For local artifact checks without a Developer ID certificate:
 
@@ -193,8 +186,4 @@ Suggested distribution order:
 3. ZIP asset for automation or troubleshooting
 4. Sparkle later if automatic updates become necessary
 
-Apple's Developer ID flow expects apps distributed outside the Mac App Store to be Developer ID signed and notarized. Homebrew Cask expects a cask file with version, SHA-256, URL, metadata, and an `app` artifact.
-
-## App Store Status
-
-The default Direct build is **not Mac App Store or TestFlight safe** because it uses private display services. The Store-safe `Debug` and `Release` configurations remain available for public-API-only builds, but they will not control Apple Silicon built-in brightness unless macOS exposes a public writable IOKit brightness channel for that display.
+Apple's Developer ID flow expects directly distributed apps to be Developer ID signed and notarized. Homebrew Cask expects a cask file with version, SHA-256, URL, metadata, and an `app` artifact.

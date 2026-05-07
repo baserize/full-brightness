@@ -10,9 +10,8 @@ LEGACY_APP_BUNDLE_IDENTIFIERS=("com.hellosunghyun.fullbrightness")
 CONTROL_EXTENSION_BUNDLE_IDENTIFIER="com.baserize.fullbrightness.controls"
 LEGACY_CONTROL_EXTENSION_BUNDLE_IDENTIFIERS=("com.hellosunghyun.fullbrightness.controls")
 DERIVED_DATA_PATH="$ROOT_DIR/.build/DerivedData"
-BUILD_CHANNEL="direct"
 BUILD_STYLE="debug"
-CONFIGURATION="Direct Debug"
+CONFIGURATION="Debug"
 INSTALL_PATH="${FULL_BRIGHTNESS_INSTALL_PATH:-/Applications/$DISPLAY_NAME.app}"
 MODE="run"
 INSTALL_APP=1
@@ -32,12 +31,6 @@ for arg in "$@"; do
     --release)
       BUILD_STYLE="release"
       ;;
-    --direct)
-      BUILD_CHANNEL="direct"
-      ;;
-    --store)
-      BUILD_CHANNEL="store"
-      ;;
     --logs)
       MODE="logs"
       ;;
@@ -51,11 +44,7 @@ for arg in "$@"; do
   esac
 done
 
-if [[ "$BUILD_CHANNEL" == "direct" && "$BUILD_STYLE" == "release" ]]; then
-  CONFIGURATION="Direct Release"
-elif [[ "$BUILD_CHANNEL" == "direct" ]]; then
-  CONFIGURATION="Direct Debug"
-elif [[ "$BUILD_STYLE" == "release" ]]; then
+if [[ "$BUILD_STYLE" == "release" ]]; then
   CONFIGURATION="Release"
 else
   CONFIGURATION="Debug"

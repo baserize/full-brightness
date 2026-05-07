@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROJECT_NAME="FullBrightness"
 SCHEME="FullBrightness"
-CONFIGURATION="Direct Release"
+CONFIGURATION="Release"
 ARCHIVE_PATH="$ROOT_DIR/.build/archives/FullBrightness.xcarchive"
 EXPORT_PATH="$ROOT_DIR/.build/export/direct"
 DIST_PATH="$ROOT_DIR/.build/dist/direct"
@@ -71,7 +71,7 @@ if [[ "$PACKAGE_MODE" == "developer-id" ]]; then
   EXPORTED_APP_PATH="$(find "$EXPORT_PATH" -maxdepth 1 -name "*.app" -type d -print -quit)"
 else
   ./script/build_and_run.sh --release --build-only --no-install
-  EXPORTED_APP_PATH="$ROOT_DIR/.build/DerivedData/Build/Products/Direct Release/FullBrightness.app"
+  EXPORTED_APP_PATH="$ROOT_DIR/.build/DerivedData/Build/Products/Release/FullBrightness.app"
 fi
 
 if [[ -z "$EXPORTED_APP_PATH" || ! -d "$EXPORTED_APP_PATH" ]]; then
