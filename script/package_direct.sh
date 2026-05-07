@@ -49,7 +49,7 @@ if [[ "$PACKAGE_MODE" == "developer-id" ]]; then
   DEVELOPER_ID_APPLICATION="$(security find-identity -p codesigning -v | awk -F '"' '/Developer ID Application/ { print $2; exit }')"
   if [[ -z "$DEVELOPER_ID_APPLICATION" ]]; then
     echo "Developer ID Application signing identity is required for public direct distribution." >&2
-    echo "Install the certificate, then rerun this script. Use --local only for local ZIP checks." >&2
+    echo "Install the certificate, then rerun this script. Use --local only for local artifact checks." >&2
     exit 1
   fi
 

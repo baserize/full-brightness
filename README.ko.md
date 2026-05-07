@@ -180,7 +180,7 @@ private API 빌드는 Developer ID 배포를 사용합니다:
 
 이 스크립트는 public 직접 배포를 위해 `Developer ID Application` 인증서를 요구합니다. `Direct Release`를 archive하고, `packaging/ExportOptions-DeveloperID.plist`로 export한 뒤, 앱을 `Full Brightness.app`으로 staging하고 DMG와 ZIP을 만들며 SHA-256과 서명 검증 결과를 출력합니다. `NOTARYTOOL_PROFILE`을 지정하면 `xcrun notarytool`로 앱과 DMG를 제출하고 둘 다 staple한 뒤 최종 artifact를 만듭니다.
 
-Developer ID 인증서 없이 로컬 ZIP만 확인하려면:
+Developer ID 인증서 없이 로컬 artifact만 확인하려면:
 
 ```sh
 ./script/package_direct.sh --local

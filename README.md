@@ -180,7 +180,7 @@ Use Developer ID distribution for the private-API build:
 
 The script requires a `Developer ID Application` certificate for public direct distribution. It archives `Direct Release`, exports with `packaging/ExportOptions-DeveloperID.plist`, stages the app as `Full Brightness.app`, creates both DMG and ZIP artifacts, prints SHA-256 values, and verifies the exported signature. Set `NOTARYTOOL_PROFILE` to submit the app and DMG with `xcrun notarytool`, then staple both before the final artifacts are published.
 
-For local ZIP checks without a Developer ID certificate:
+For local artifact checks without a Developer ID certificate:
 
 ```sh
 ./script/package_direct.sh --local
