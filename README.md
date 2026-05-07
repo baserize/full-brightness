@@ -4,14 +4,15 @@
 
 Full Brightness is a macOS utility for display-heavy setups. It lists connected displays, shows resolution and HiDPI details, identifies which displays can be controlled, and sets supported displays to your chosen Full brightness level on demand or automatically when a new display connects.
 
-Current GitHub release: `2026.05.07.002`
+Current GitHub release: [`2026.05.08.001`](https://github.com/baserize/full-brightness/releases/tag/2026.05.08.001)
 
 ## Requirements
 
 - macOS 26 or newer
 - Apple Silicon or Intel Mac
 - Xcode 26+ only when building from source
-- A display path that exposes brightness through Apple display APIs or DDC/CI
+- For the default Direct build: Apple-native displays exposed through macOS `DisplayServices`, or displays that expose writable brightness through public IOKit brightness parameters
+- For the Store-safe build: a display path that exposes writable brightness through public IOKit brightness parameters
 
 Some monitors, docks, cables, KVMs, and DisplayLink-style adapters block brightness control. Full Brightness still lists those displays, but marks them as unsupported instead of changing them blindly.
 
@@ -60,9 +61,47 @@ Some monitors, docks, cables, KVMs, and DisplayLink-style adapters block brightn
 
 ## Install
 
-Download the latest release from GitHub, unzip `Full-Brightness-2026.05.07.002.zip`, and move `Full Brightness.app` to `/Applications`.
+### GitHub Release
 
-The current GitHub build is a developer preview build and is not notarized. If macOS blocks the app, build it locally from source or sign and notarize it with your own Developer ID certificate.
+Download the notarized ZIP from the [latest release page](https://github.com/baserize/full-brightness/releases/latest), unzip it, and move `Full Brightness.app` to `/Applications`.
+
+Direct download:
+
+```sh
+curl -L -o Full-Brightness-2026.05.08.001.zip \
+  https://github.com/baserize/full-brightness/releases/download/2026.05.08.001/Full-Brightness-2026.05.08.001.zip
+unzip Full-Brightness-2026.05.08.001.zip
+mv "Full Brightness.app" /Applications/
+```
+
+The release ZIP is signed with Developer ID and notarized by Apple for distribution outside the Mac App Store.
+
+### Homebrew
+
+Install through the repo's cask tap:
+
+```sh
+brew tap baserize/full-brightness https://github.com/baserize/full-brightness
+brew install --cask full-brightness
+```
+
+Or install directly from the cask URL:
+
+```sh
+brew install --cask https://raw.githubusercontent.com/baserize/full-brightness/main/Casks/full-brightness.rb
+```
+
+To remove the app:
+
+```sh
+brew uninstall --cask full-brightness
+```
+
+To remove app data as well:
+
+```sh
+brew uninstall --zap --cask full-brightness
+```
 
 ## Use
 
@@ -83,12 +122,13 @@ Open Shortcuts or Spotlight and search for Full Brightness. The app provides loc
 
 ## Display Support
 
-Full Brightness tries these hardware brightness paths:
+The default build is the **Direct distribution** build. It uses Apple's private `DisplayServices` entry points through runtime symbol loading so Apple built-in displays and other Apple-native brightness paths can be controlled outside the Mac App Store.
 
-- Apple DisplayServices native brightness for built-in displays and Apple-supported displays such as LG UltraFine.
-- macOS IOKit display brightness parameters for some older Apple-supported paths.
-- Apple Silicon DCP/IOAVService DDC/CI for many external monitors on modern Apple Silicon Macs.
-- IOFramebuffer I2C DDC/CI for older Intel-style display paths.
+The Direct build falls back to public IOKit `kIODisplayBrightnessKey` when `DisplayServices` is unavailable for a display.
+
+Direct builds use `Sources/App/FullBrightnessDirect.entitlements` for the main app, without App Sandbox, while the Control Center extension keeps its sandbox and app-group entitlements.
+
+General external monitors that only support DDC/CI may still be listed as unsupported. They need a separate DDC backend and should be treated as a future direct-distribution expansion, not as part of the current Apple-native brightness path.
 
 Unsupported displays usually fail because the display, dock, cable, adapter, or driver does not expose a writable brightness channel to macOS.
 
@@ -98,23 +138,56 @@ Unsupported displays usually fail because the display, dock, cable, adapter, or 
 ./script/build_and_run.sh --verify
 ```
 
-For a Release build without installing or launching:
+By default, the build script uses `Direct Debug`, which includes `DIRECT_DISTRIBUTION` and the private `DisplayServices` backend.
+
+For a Direct Release build without installing or launching:
 
 ```sh
 ./script/build_and_run.sh --release --build-only
+```
+
+For the Store-safe public-API build:
+
+```sh
+./script/build_and_run.sh --store --release --build-only
 ```
 
 The script regenerates `FullBrightness.xcodeproj` from `project.yml`, builds the app with Xcode, and can install the app to `/Applications/Full Brightness.app` so macOS can discover its Control Center extension.
 
 ## Release
 
-The public GitHub release tag uses the date-based version `2026.05.07.002`.
+The public GitHub release tag uses the date-based version `2026.05.08.001`.
 
 Apple bundle version fields use App Store-compatible numeric forms:
 
-- `CFBundleShortVersionString`: `2026.5.7`
-- `CFBundleVersion`: `20260507002`
+- `CFBundleShortVersionString`: `2026.5.8`
+- `CFBundleVersion`: `20260508001`
+
+### Direct distribution package
+
+Use Developer ID distribution for the private-API build:
+
+```sh
+./script/package_direct.sh
+```
+
+The script requires a `Developer ID Application` certificate for public direct distribution. It archives `Direct Release`, exports with `packaging/ExportOptions-DeveloperID.plist`, stages the app as `Full Brightness.app`, creates a ZIP, prints the SHA-256, and verifies the exported signature. Set `NOTARYTOOL_PROFILE` to submit the ZIP with `xcrun notarytool` and staple the app before the final ZIP is created.
+
+For local ZIP checks without a Developer ID certificate:
+
+```sh
+./script/package_direct.sh --local
+```
+
+Suggested distribution order:
+
+1. GitHub Releases notarized ZIP
+2. Homebrew cask in `Casks/full-brightness.rb`
+3. DMG later only if onboarding or branding needs it
+4. Sparkle later if automatic updates become necessary
+
+Apple's Developer ID flow expects apps distributed outside the Mac App Store to be Developer ID signed and notarized. Homebrew Cask expects a cask file with version, SHA-256, URL, metadata, and an `app` artifact.
 
 ## App Store Status
 
-Full Brightness is not currently App Store-safe. Brightness support relies on private macOS display APIs and low-level DDC/CI paths. A Mac App Store version would need a public API-compatible brightness strategy or reduced functionality.
+The default Direct build is **not Mac App Store or TestFlight safe** because it uses private display services. The Store-safe `Debug` and `Release` configurations remain available for public-API-only builds, but they will not control Apple Silicon built-in brightness unless macOS exposes a public writable IOKit brightness channel for that display.

@@ -37,10 +37,12 @@
 "display.resolution_detail_format" = "%@ · Actual %@%@";
 "display.hidpi.scale_format" = "HiDPI %@";
 "display.hidpi.none" = "Not HiDPI";
-"display.brightness_unreadable" = "Unreadable";
+"display.brightness_unreadable" = "Unavailable";
 "display.status.adjustable" = "Adjustable";
 "display.status.unsupported" = "Not supported";
 "display.backend.unsupported" = "Not supported";
+"display.backend.io_display" = "IOKit";
+"display.backend.display_services" = "Native";
 "display.name.builtin" = "Built-in display";
 "display.name.fallback_format" = "Display %u-%u";
 
@@ -59,16 +61,13 @@
 
 "intent.set_all.title" = "Set displays to Full";
 "intent.set_all.description" = "Immediately sets adjustable connected displays to your Full brightness level.";
-"intent.set_all.dialog_format" = "Adjustable displays were set to %d%%.";
 "intent.auto.title" = "Auto Full on connect";
 "intent.auto.description" = "Toggles whether brightness is automatically set to your Full level when a new display connects.";
 "intent.auto.parameter.enabled" = "Enabled";
 "intent.auto.enable.title" = "Turn on Auto Full on connect";
 "intent.auto.enable.description" = "Turns on automatic Full brightness when a new display connects.";
-"intent.auto.enable.dialog_format" = "Auto Full on connect is on at %d%%.";
 "intent.auto.disable.title" = "Turn off Auto Full on connect";
 "intent.auto.disable.description" = "Turns off automatic Full brightness when a new display connects.";
-"intent.auto.disable.dialog" = "Auto Full on connect is off.";
 "intent.shortcut.set_all.short_title" = "Displays Full";
 "intent.shortcut.auto_enable.short_title" = "Auto Full On";
 "intent.shortcut.auto_disable.short_title" = "Auto Full Off";

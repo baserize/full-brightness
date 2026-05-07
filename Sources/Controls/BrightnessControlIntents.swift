@@ -6,9 +6,9 @@ struct SetDisplaysToFullBrightnessIntent: AppIntent {
     static let supportedModes: IntentModes = .foreground(.immediate)
     static let authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
 
-    func perform() async throws -> some IntentResult & ProvidesDialog {
-        let result = await BrightnessIntentAction.setAllDisplaysToFullBrightness()
-        return .result(dialog: "\(L10n.string("intent.set_all.dialog_format", result.targetPercent))")
+    func perform() async throws -> some IntentResult {
+        _ = await BrightnessIntentAction.setAllDisplaysToFullBrightness()
+        return .result()
     }
 }
 
@@ -41,9 +41,9 @@ struct EnableAutoFullBrightnessIntent: AppIntent {
     static let supportedModes: IntentModes = .foreground(.immediate)
     static let authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
 
-    func perform() async throws -> some IntentResult & ProvidesDialog {
-        let targetPercent = await BrightnessIntentAction.setAutoFullBrightness(true)
-        return .result(dialog: "\(L10n.string("intent.auto.enable.dialog_format", targetPercent))")
+    func perform() async throws -> some IntentResult {
+        _ = await BrightnessIntentAction.setAutoFullBrightness(true)
+        return .result()
     }
 }
 
@@ -53,9 +53,9 @@ struct DisableAutoFullBrightnessIntent: AppIntent {
     static let supportedModes: IntentModes = .foreground(.immediate)
     static let authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
 
-    func perform() async throws -> some IntentResult & ProvidesDialog {
+    func perform() async throws -> some IntentResult {
         _ = await BrightnessIntentAction.setAutoFullBrightness(false)
-        return .result(dialog: "\(L10n.string("intent.auto.disable.dialog"))")
+        return .result()
     }
 }
 

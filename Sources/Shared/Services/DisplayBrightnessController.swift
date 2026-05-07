@@ -5,20 +5,16 @@ import IOKit.graphics
 
 struct DisplayBrightnessController: Sendable {
     private struct ControlTarget {
-        let displayID: CGDirectDisplayID
         let device: DisplayDevice
         let ioDisplayService: DisplayServiceMatch?
-        let appleSiliconService: AppleSiliconDDCServiceMatch?
     }
 
-    private let appleNativeBrightnessController = AppleNativeBrightnessController()
-    private let appleSiliconDDCController = AppleSiliconDDCController()
-    private let ddcBrightnessController = DDCBrightnessController()
+#if DIRECT_DISTRIBUTION
+    private let privateDisplayServicesController = PrivateDisplayServicesBrightnessController()
+#endif
 
     func displays() -> [DisplayDevice] {
-        return withControlTargets { targets in
-            targets.map(\.device)
-        }
+        controlTargets().map(\.device)
     }
 
     @discardableResult
@@ -26,28 +22,26 @@ struct DisplayBrightnessController: Sendable {
         let normalizedBrightness = min(max(targetBrightness, 0), 1)
         let targetPercent = Int((normalizedBrightness * 100).rounded())
 
-        return withControlTargets { targets in
-            let adjustableTargets = targets.filter(\.device.isBrightnessAdjustable)
-            var succeededCount = 0
-            var failedDisplays: [String] = []
+        let adjustableTargets = controlTargets().filter(\.device.isBrightnessAdjustable)
+        var succeededCount = 0
+        var failedDisplays: [String] = []
 
-            for target in adjustableTargets {
-                guard setBrightness(normalizedBrightness, using: target) else {
-                    failedDisplays.append(target.device.name)
-                    continue
-                }
-
-                succeededCount += 1
+        for target in adjustableTargets {
+            guard setBrightness(normalizedBrightness, using: target) else {
+                failedDisplays.append(target.device.name)
+                continue
             }
 
-            return BrightnessRunResult(
-                attemptedCount: adjustableTargets.count,
-                succeededCount: succeededCount,
-                failedDisplays: failedDisplays,
-                targetPercent: targetPercent,
-                completedAt: Date()
-            )
+            succeededCount += 1
         }
+
+        return BrightnessRunResult(
+            attemptedCount: adjustableTargets.count,
+            succeededCount: succeededCount,
+            failedDisplays: failedDisplays,
+            targetPercent: targetPercent,
+            completedAt: Date()
+        )
     }
 
     private func readBrightness(service: io_service_t) -> Float? {
@@ -66,43 +60,16 @@ struct DisplayBrightnessController: Sendable {
         return true
     }
 
-    private func withControlTargets<T>(_ body: ([ControlTarget]) throws -> T) rethrows -> T {
+    private func controlTargets() -> [ControlTarget] {
         let displayIDs = onlineDisplayIDs()
 
-        return try DisplayServiceMatcher.withConnectedServices { services in
-            var targets = displayIDs.map { displayID in
+        return DisplayServiceMatcher.withConnectedServices { services in
+            displayIDs.map { displayID in
                 makeControlTarget(
                     displayID: displayID,
-                    ioDisplayService: DisplayServiceMatcher.service(for: displayID, in: services),
-                    appleSiliconService: nil,
-                    includesDDCBackends: false
+                    ioDisplayService: DisplayServiceMatcher.service(for: displayID, in: services)
                 )
             }
-
-            let ddcCandidateIDs = targets
-                .filter { !$0.device.isBuiltin && !$0.device.isBrightnessAdjustable }
-                .map(\.displayID)
-
-            if !ddcCandidateIDs.isEmpty {
-                let ddcCandidateIDSet = Set(ddcCandidateIDs)
-                let fastTargetsByID = Dictionary(uniqueKeysWithValues: targets.map { ($0.displayID, $0) })
-                let appleSiliconServices = appleSiliconDDCController.serviceMatches(for: ddcCandidateIDs)
-
-                targets = displayIDs.compactMap { displayID in
-                    guard ddcCandidateIDSet.contains(displayID) else {
-                        return fastTargetsByID[displayID]
-                    }
-
-                    return makeControlTarget(
-                        displayID: displayID,
-                        ioDisplayService: DisplayServiceMatcher.service(for: displayID, in: services),
-                        appleSiliconService: appleSiliconServices[displayID],
-                        includesDDCBackends: true
-                    )
-                }
-            }
-
-            return try body(targets)
         }
     }
 
@@ -117,41 +84,35 @@ struct DisplayBrightnessController: Sendable {
 
     private func makeControlTarget(
         displayID: CGDirectDisplayID,
-        ioDisplayService: DisplayServiceMatch?,
-        appleSiliconService: AppleSiliconDDCServiceMatch?,
-        includesDDCBackends: Bool
+        ioDisplayService: DisplayServiceMatch?
     ) -> ControlTarget {
         let backend: DisplayDevice.BrightnessBackend
         let brightness: Float?
 
-        if let appleNativeBrightness = appleNativeBrightnessController.readBrightness(displayID: displayID) {
-            backend = .appleNative
-            brightness = appleNativeBrightness
+#if DIRECT_DISTRIBUTION
+        if let displayServicesBrightness = privateDisplayServicesController.readBrightness(displayID: displayID) {
+            backend = .displayServices
+            brightness = displayServicesBrightness
         } else if let ioDisplayBrightness = ioDisplayService.flatMap({ readBrightness(service: $0.service) }) {
             backend = .ioDisplay
             brightness = ioDisplayBrightness
-        } else if includesDDCBackends, appleSiliconService?.service != nil {
-            backend = .appleSiliconDDC
-            brightness = appleSiliconService.flatMap {
-                appleSiliconDDCController.readBrightness(service: $0.service)?.normalized
-            }
-        } else if includesDDCBackends, let ddcBrightness = ioDisplayService?.framebuffer.flatMap({
-            ddcBrightnessController.readBrightness(framebuffer: $0)?.normalized
-        }) {
-            backend = .ddcCI
-            brightness = ddcBrightness
         } else {
             backend = .none
             brightness = nil
         }
+#else
+        if let ioDisplayBrightness = ioDisplayService.flatMap({ readBrightness(service: $0.service) }) {
+            backend = .ioDisplay
+            brightness = ioDisplayBrightness
+        } else {
+            backend = .none
+            brightness = nil
+        }
+#endif
 
         let device = DisplayDevice(
             id: displayID,
-            name: displayName(
-                displayID: displayID,
-                ioDisplayService: ioDisplayService,
-                appleSiliconService: appleSiliconService
-            ),
+            name: DisplayNameResolver.name(for: displayID, ioDisplayName: ioDisplayService?.name),
             vendorID: CGDisplayVendorNumber(displayID),
             productID: CGDisplayModelNumber(displayID),
             serialNumber: CGDisplaySerialNumber(displayID),
@@ -162,96 +123,25 @@ struct DisplayBrightnessController: Sendable {
         )
 
         return ControlTarget(
-            displayID: displayID,
             device: device,
-            ioDisplayService: ioDisplayService,
-            appleSiliconService: appleSiliconService
+            ioDisplayService: ioDisplayService
         )
     }
 
     private func setBrightness(_ value: Float, using target: ControlTarget) -> Bool {
-        if target.device.brightnessBackend == .appleNative,
-           appleNativeBrightnessController.setBrightness(value, displayID: target.displayID) {
-            return true
-        }
-
-        if let ioDisplayService = target.ioDisplayService,
-           target.device.brightnessBackend == .ioDisplay,
-           setBrightness(value, service: ioDisplayService.service) {
-            return true
-        }
-
-        if target.device.brightnessBackend == .appleSiliconDDC,
-           appleSiliconDDCController.setBrightness(value, service: target.appleSiliconService?.service) {
-            return true
-        }
-
-        if target.device.brightnessBackend == .ddcCI,
-           let framebuffer = target.ioDisplayService?.framebuffer,
-           ddcBrightnessController.setBrightness(value, framebuffer: framebuffer) {
-            return true
-        }
-
-        return setBrightnessUsingFallbacks(value, target: target)
-    }
-
-    private func setBrightnessUsingFallbacks(_ value: Float, target: ControlTarget) -> Bool {
-        if appleNativeBrightnessController.setBrightness(value, displayID: target.displayID) {
-            return true
-        }
-
-        if let service = target.ioDisplayService?.service,
-           setBrightness(value, service: service) {
-            return true
-        }
-
-        let appleSiliconService = target.appleSiliconService
-            ?? appleSiliconDDCController.serviceMatches(for: [target.displayID])[target.displayID]
-
-        if appleSiliconDDCController.setBrightness(value, service: appleSiliconService?.service) {
-            return true
-        }
-
-        guard let framebuffer = target.ioDisplayService?.framebuffer else {
+        switch target.device.brightnessBackend {
+        case .ioDisplay:
+            guard let ioDisplayService = target.ioDisplayService else { return false }
+            return setBrightness(value, service: ioDisplayService.service)
+        case .displayServices:
+#if DIRECT_DISTRIBUTION
+            return privateDisplayServicesController.setBrightness(value, displayID: target.device.id)
+#else
+            return false
+#endif
+        case .none:
             return false
         }
-
-        return ddcBrightnessController.setBrightness(value, framebuffer: framebuffer)
-    }
-
-    private func displayName(
-        displayID: CGDirectDisplayID,
-        ioDisplayService: DisplayServiceMatch?,
-        appleSiliconService: AppleSiliconDDCServiceMatch?
-    ) -> String {
-        if let name = ioDisplayService?.name, !name.isEmpty {
-            return name
-        }
-
-        if CGDisplayIsBuiltin(displayID) != 0 {
-            return L10n.string("display.name.builtin")
-        }
-
-        if let name = coreDisplayName(displayID: displayID), !name.isEmpty {
-            return name
-        }
-
-        if let name = appleSiliconService?.productName, !name.isEmpty {
-            return name
-        }
-
-        let vendorID = CGDisplayVendorNumber(displayID)
-        let productID = CGDisplayModelNumber(displayID)
-        return L10n.string("display.name.fallback_format", vendorID, productID)
-    }
-
-    private func coreDisplayName(displayID: CGDirectDisplayID) -> String? {
-        guard let info = CoreDisplay_DisplayCreateInfoDictionary(displayID)?.takeRetainedValue() as? NSDictionary,
-              let names = info["DisplayProductName"] as? [String: String] else {
-            return nil
-        }
-
-        return LocalizedDisplayName.preferred(from: names)
     }
 
     private func displayResolution(displayID: CGDirectDisplayID) -> DisplayDevice.Resolution {

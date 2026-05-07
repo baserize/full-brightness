@@ -1,8 +1,12 @@
 import Foundation
 
 struct KeyboardShortcutPreferences {
+    private var defaults: UserDefaults {
+        UserDefaults(suiteName: AppConstants.appGroupIdentifier) ?? .standard
+    }
+
     func shortcut(for action: ShortcutAction) -> AppKeyboardShortcut {
-        guard let value = CFPreferencesCopyAppValue(key(for: action) as CFString, AppConstants.appBundleIdentifier as CFString) as? String,
+        guard let value = defaults.string(forKey: key(for: action)),
               let shortcut = AppKeyboardShortcut(serializedValue: value) else {
             return action.defaultShortcut
         }
@@ -11,21 +15,11 @@ struct KeyboardShortcutPreferences {
     }
 
     func setShortcut(_ shortcut: AppKeyboardShortcut, for action: ShortcutAction) {
-        CFPreferencesSetAppValue(
-            key(for: action) as CFString,
-            shortcut.serializedValue as CFString,
-            AppConstants.appBundleIdentifier as CFString
-        )
-        CFPreferencesAppSynchronize(AppConstants.appBundleIdentifier as CFString)
+        defaults.set(shortcut.serializedValue, forKey: key(for: action))
     }
 
     func resetShortcut(for action: ShortcutAction) {
-        CFPreferencesSetAppValue(
-            key(for: action) as CFString,
-            nil,
-            AppConstants.appBundleIdentifier as CFString
-        )
-        CFPreferencesAppSynchronize(AppConstants.appBundleIdentifier as CFString)
+        defaults.removeObject(forKey: key(for: action))
     }
 
     private func key(for action: ShortcutAction) -> String {

@@ -49,19 +49,19 @@ struct DisplayDevice: Identifiable, Equatable, Sendable {
         }
     }
 
-    enum BrightnessBackend: String, Sendable {
+    enum BrightnessBackend: Sendable {
         case none
-        case appleNative = "Apple Native"
-        case appleSiliconDDC = "Apple Silicon DDC"
-        case ioDisplay = "IOKit"
-        case ddcCI = "DDC/CI"
+        case ioDisplay
+        case displayServices
 
         var displayName: String {
             switch self {
             case .none:
                 L10n.string("display.backend.unsupported")
-            case .appleNative, .appleSiliconDDC, .ioDisplay, .ddcCI:
-                rawValue
+            case .ioDisplay:
+                L10n.string("display.backend.io_display")
+            case .displayServices:
+                L10n.string("display.backend.display_services")
             }
         }
     }

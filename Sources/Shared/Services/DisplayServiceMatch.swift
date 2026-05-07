@@ -5,7 +5,6 @@ import IOKit.graphics
 
 struct DisplayServiceMatch: Sendable {
     let service: io_service_t
-    let framebuffer: io_service_t?
     let vendorID: UInt32
     let productID: UInt32
     let serialNumber: UInt32
@@ -40,9 +39,6 @@ enum DisplayServiceMatcher {
         defer {
             for match in matches {
                 IOObjectRelease(match.service)
-                if let framebuffer = match.framebuffer {
-                    IOObjectRelease(framebuffer)
-                }
             }
         }
 
@@ -75,12 +71,8 @@ enum DisplayServiceMatcher {
         let productID = numberValue(info[kDisplayProductID as String])
         let serialNumber = numberValue(info[kDisplaySerialNumber as String])
 
-        var framebuffer: io_service_t = 0
-        let framebufferResult = IORegistryEntryGetParentEntry(service, kIOServicePlane, &framebuffer)
-
         return DisplayServiceMatch(
             service: service,
-            framebuffer: framebufferResult == kIOReturnSuccess ? framebuffer : nil,
             vendorID: vendorID,
             productID: productID,
             serialNumber: serialNumber,

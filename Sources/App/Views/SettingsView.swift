@@ -24,8 +24,7 @@ struct SettingsView: View {
 
                     Slider(
                         value: targetBrightnessSliderBinding,
-                        in: Double(BrightnessPreferences.targetBrightnessPercentRange.lowerBound)...Double(BrightnessPreferences.targetBrightnessPercentRange.upperBound),
-                        step: 1
+                        in: Double(BrightnessPreferences.targetBrightnessPercentRange.lowerBound)...Double(BrightnessPreferences.targetBrightnessPercentRange.upperBound)
                     )
                 }
             }

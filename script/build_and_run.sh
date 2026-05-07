@@ -7,8 +7,12 @@ APP_NAME="FullBrightness"
 DISPLAY_NAME="Full Brightness"
 APP_BUNDLE_IDENTIFIER="com.baserize.fullbrightness"
 LEGACY_APP_BUNDLE_IDENTIFIERS=("com.hellosunghyun.fullbrightness")
+CONTROL_EXTENSION_BUNDLE_IDENTIFIER="com.baserize.fullbrightness.controls"
+LEGACY_CONTROL_EXTENSION_BUNDLE_IDENTIFIERS=("com.hellosunghyun.fullbrightness.controls")
 DERIVED_DATA_PATH="$ROOT_DIR/.build/DerivedData"
-CONFIGURATION="Debug"
+BUILD_CHANNEL="direct"
+BUILD_STYLE="debug"
+CONFIGURATION="Direct Debug"
 INSTALL_PATH="${FULL_BRIGHTNESS_INSTALL_PATH:-/Applications/$DISPLAY_NAME.app}"
 MODE="run"
 INSTALL_APP=1
@@ -26,7 +30,13 @@ for arg in "$@"; do
       MODE="build"
       ;;
     --release)
-      CONFIGURATION="Release"
+      BUILD_STYLE="release"
+      ;;
+    --direct)
+      BUILD_CHANNEL="direct"
+      ;;
+    --store)
+      BUILD_CHANNEL="store"
       ;;
     --logs)
       MODE="logs"
@@ -40,6 +50,16 @@ for arg in "$@"; do
       ;;
   esac
 done
+
+if [[ "$BUILD_CHANNEL" == "direct" && "$BUILD_STYLE" == "release" ]]; then
+  CONFIGURATION="Direct Release"
+elif [[ "$BUILD_CHANNEL" == "direct" ]]; then
+  CONFIGURATION="Direct Debug"
+elif [[ "$BUILD_STYLE" == "release" ]]; then
+  CONFIGURATION="Release"
+else
+  CONFIGURATION="Debug"
+fi
 
 bundle_identifier() {
   /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$1/Contents/Info.plist" 2>/dev/null || true
@@ -59,6 +79,72 @@ is_known_install_identifier() {
   done
 
   return 1
+}
+
+is_known_control_extension_identifier() {
+  local identifier="$1"
+
+  if [[ "$identifier" == "$CONTROL_EXTENSION_BUNDLE_IDENTIFIER" ]]; then
+    return 0
+  fi
+
+  for legacy_identifier in "${LEGACY_CONTROL_EXTENSION_BUNDLE_IDENTIFIERS[@]}"; do
+    if [[ "$identifier" == "$legacy_identifier" ]]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+stop_running_processes() {
+  local matched_processes
+
+  matched_processes="$(
+    ps -axo pid=,ppid=,args= | awk '
+      index($0, "FullBrightness.app/Contents/MacOS/FullBrightness") ||
+      index($0, "FullBrightnessControls.appex/Contents/MacOS/FullBrightnessControls") {
+        print $1 " " $2
+      }
+    '
+  )"
+
+  while read -r pid ppid; do
+    if [[ -n "${pid:-}" && "$pid" != "$$" ]]; then
+      kill "$pid" >/dev/null 2>&1 || true
+    fi
+
+    if [[ -n "${ppid:-}" && "$ppid" != "1" && "$ppid" != "$$" ]]; then
+      kill "$ppid" >/dev/null 2>&1 || true
+    fi
+  done <<< "$matched_processes"
+
+  sleep 0.2
+  pkill -x "$APP_NAME" >/dev/null 2>&1 || true
+  pkill -x "FullBrightnessControls" >/dev/null 2>&1 || true
+  sleep 0.2
+  pkill -9 -x "$APP_NAME" >/dev/null 2>&1 || true
+  pkill -9 -x "FullBrightnessControls" >/dev/null 2>&1 || true
+}
+
+unregister_discovered_control_extensions() {
+  while IFS= read -r extension_path; do
+    if [[ -d "$extension_path" ]]; then
+      pluginkit -r "$extension_path" >/dev/null 2>&1 || true
+    fi
+  done < <(
+    mdfind "kMDItemCFBundleIdentifier == '$CONTROL_EXTENSION_BUNDLE_IDENTIFIER'" 2>/dev/null || true
+  )
+
+  for legacy_identifier in "${LEGACY_CONTROL_EXTENSION_BUNDLE_IDENTIFIERS[@]}"; do
+    while IFS= read -r extension_path; do
+      if [[ -d "$extension_path" ]]; then
+        pluginkit -r "$extension_path" >/dev/null 2>&1 || true
+      fi
+    done < <(
+      mdfind "kMDItemCFBundleIdentifier == '$legacy_identifier'" 2>/dev/null || true
+    )
+  done
 }
 
 register_installed_app() {
@@ -101,9 +187,15 @@ install_app_bundle() {
 
   local built_extension_path="$built_app_path/Contents/PlugIns/FullBrightnessControls.appex"
   if [[ -d "$built_extension_path" ]]; then
-    pluginkit -r "$built_extension_path" >/dev/null 2>&1 || true
+    local built_extension_identifier
+    built_extension_identifier="$(bundle_identifier "$built_extension_path")"
+
+    if is_known_control_extension_identifier "$built_extension_identifier"; then
+      pluginkit -r "$built_extension_path" >/dev/null 2>&1 || true
+    fi
   fi
 
+  unregister_discovered_control_extensions
   rm -rf "$INSTALL_PATH"
   ditto "$built_app_path" "$INSTALL_PATH"
   register_installed_app "$INSTALL_PATH"
@@ -118,9 +210,7 @@ fi
 
 xcodegen generate --spec project.yml --quiet
 
-if pgrep -x "$APP_NAME" >/dev/null 2>&1; then
-  pkill -x "$APP_NAME"
-fi
+stop_running_processes
 
 xcodebuild \
   -project "$PROJECT_NAME.xcodeproj" \

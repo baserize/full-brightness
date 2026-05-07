@@ -9,31 +9,27 @@ struct BrightnessPreferences: Sendable {
         static let targetBrightnessPercent = "targetBrightnessPercent"
     }
 
+    private var defaults: UserDefaults {
+        UserDefaults(suiteName: AppConstants.appGroupIdentifier) ?? .standard
+    }
+
     var autoFullEnabled: Bool {
         get {
-            let value = CFPreferencesCopyAppValue(Key.autoFullEnabled as CFString, AppConstants.appBundleIdentifier as CFString)
-            return (value as? Bool) ?? false
+            defaults.bool(forKey: Key.autoFullEnabled)
         }
         nonmutating set {
-            CFPreferencesSetAppValue(Key.autoFullEnabled as CFString, newValue as CFBoolean, AppConstants.appBundleIdentifier as CFString)
-            CFPreferencesAppSynchronize(AppConstants.appBundleIdentifier as CFString)
+            defaults.set(newValue, forKey: Key.autoFullEnabled)
         }
     }
 
     var targetBrightnessPercent: Int {
         get {
-            let value = CFPreferencesCopyAppValue(Key.targetBrightnessPercent as CFString, AppConstants.appBundleIdentifier as CFString)
-            let percent = (value as? NSNumber)?.intValue ?? Self.defaultTargetBrightnessPercent
+            let percent = defaults.object(forKey: Key.targetBrightnessPercent) as? Int ?? Self.defaultTargetBrightnessPercent
             return Self.clampedTargetBrightnessPercent(percent)
         }
         nonmutating set {
             let percent = Self.clampedTargetBrightnessPercent(newValue)
-            CFPreferencesSetAppValue(
-                Key.targetBrightnessPercent as CFString,
-                NSNumber(value: percent),
-                AppConstants.appBundleIdentifier as CFString
-            )
-            CFPreferencesAppSynchronize(AppConstants.appBundleIdentifier as CFString)
+            defaults.set(percent, forKey: Key.targetBrightnessPercent)
         }
     }
 

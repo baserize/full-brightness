@@ -37,10 +37,12 @@
 "display.resolution_detail_format" = "%@ · 실제 %@%@";
 "display.hidpi.scale_format" = "HiDPI %@";
 "display.hidpi.none" = "HiDPI 아님";
-"display.brightness_unreadable" = "읽기 불가";
+"display.brightness_unreadable" = "제어 불가";
 "display.status.adjustable" = "조정 가능";
 "display.status.unsupported" = "지원 안 함";
 "display.backend.unsupported" = "지원 안 함";
+"display.backend.io_display" = "IOKit";
+"display.backend.display_services" = "네이티브";
 "display.name.builtin" = "내장 디스플레이";
 "display.name.fallback_format" = "디스플레이 %u-%u";
 
@@ -59,16 +61,13 @@
 
 "intent.set_all.title" = "모든 모니터 Full";
 "intent.set_all.description" = "밝기 조정 가능한 연결 모니터를 내가 정한 Full 밝기로 즉시 설정합니다.";
-"intent.set_all.dialog_format" = "밝기 조정 가능한 모니터를 %d%%로 설정했습니다.";
 "intent.auto.title" = "연결 시 자동 Full";
 "intent.auto.description" = "새 모니터 연결 시 자동으로 내가 정한 Full 밝기로 설정할지 전환합니다.";
 "intent.auto.parameter.enabled" = "켜짐";
 "intent.auto.enable.title" = "연결 시 자동 Full 켜기";
 "intent.auto.enable.description" = "새 모니터가 연결되면 밝기를 내가 정한 Full 밝기로 자동 설정합니다.";
-"intent.auto.enable.dialog_format" = "연결 시 자동 Full이 %d%% 기준으로 켜졌습니다.";
 "intent.auto.disable.title" = "연결 시 자동 Full 끄기";
 "intent.auto.disable.description" = "새 모니터 연결 시 자동 Full 설정을 끕니다.";
-"intent.auto.disable.dialog" = "연결 시 자동 Full이 꺼졌습니다.";
 "intent.shortcut.set_all.short_title" = "모니터 Full";
 "intent.shortcut.auto_enable.short_title" = "자동 Full 켜기";
 "intent.shortcut.auto_disable.short_title" = "자동 Full 끄기";
