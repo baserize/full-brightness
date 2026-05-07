@@ -25,6 +25,9 @@ for arg in "$@"; do
     --build-only)
       MODE="build"
       ;;
+    --release)
+      CONFIGURATION="Release"
+      ;;
     --logs)
       MODE="logs"
       ;;

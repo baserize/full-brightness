@@ -50,7 +50,7 @@ final class AppModel {
 
         Task { [weak self] in
             let latestDisplays = await brightnessClient.displays()
-            await self?.applyDisplays(latestDisplays, clearsLastRunResult: false)
+            self?.applyDisplays(latestDisplays, clearsLastRunResult: false)
         }
     }
 
@@ -60,7 +60,7 @@ final class AppModel {
         Task { [weak self] in
             let result = await brightnessClient.setAllDisplaysToMaximum()
             let latestDisplays = await brightnessClient.displays()
-            await self?.applyBrightnessRunResult(result, displays: latestDisplays)
+            self?.applyBrightnessRunResult(result, displays: latestDisplays)
         }
     }
 
@@ -101,7 +101,7 @@ final class AppModel {
                 guard !Task.isCancelled else { return }
 
                 let latestDisplays = await brightnessClient.displays()
-                await self?.applyDisplays(latestDisplays, clearsLastRunResult: true)
+                self?.applyDisplays(latestDisplays, clearsLastRunResult: true)
             }
         }
     }
