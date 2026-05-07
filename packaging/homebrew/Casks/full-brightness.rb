@@ -7,6 +7,8 @@ cask "full-brightness" do
   desc "Set supported displays to a chosen brightness level"
   homepage "https://github.com/baserize/full-brightness"
 
+  depends_on macos: ">= :tahoe"
+
   app "Full Brightness.app"
 
   zap trash: [
