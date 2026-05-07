@@ -1,0 +1,82 @@
+name: FullBrightness
+options:
+  bundleIdPrefix: com.hellosunghyun
+  deploymentTarget:
+    macOS: "26.0"
+settings:
+  base:
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 1.0
+    MACOSX_DEPLOYMENT_TARGET: "26.0"
+    SWIFT_VERSION: "6.0"
+    DEVELOPMENT_TEAM: 27LDR382XX
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: Apple Development
+    PROVISIONING_PROFILE_SPECIFIER: ""
+    DEVELOPMENT_LANGUAGE: en
+    CLANG_ENABLE_MODULES: YES
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    SWIFT_OBJC_BRIDGING_HEADER: Sources/Shared/Support/DisplayPrivateAPIs.h
+    OTHER_LDFLAGS: "$(inherited) -F$(SDKROOT)/System/Library/PrivateFrameworks -framework CoreDisplay -framework DisplayServices"
+targets:
+  FullBrightness:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/Shared
+      - path: Sources/App
+      - path: Sources/Controls/BrightnessControlIntents.swift
+      - path: Sources/Controls/FullBrightnessAppShortcuts.swift
+      - path: Sources/Controls/FullBrightnessControls.swift
+    dependencies:
+      - target: FullBrightnessControls
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hellosunghyun.fullbrightness
+        PRODUCT_NAME: FullBrightness
+        INFOPLIST_FILE: Sources/App/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Sources/App/FullBrightness.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: NO
+    info:
+      path: Sources/App/Info.plist
+      properties:
+        CFBundleDisplayName: Full Brightness
+        CFBundleIconName: AppIcon
+        CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
+        CFBundleName: Full Brightness
+        CFBundlePackageType: APPL
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSApplicationCategoryType: public.app-category.utilities
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSHumanReadableCopyright: Copyright © 2026 Sunghyun Kim.
+        NSPrincipalClass: NSApplication
+        ITSAppUsesNonExemptEncryption: false
+  FullBrightnessControls:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: Sources/Shared
+      - path: Sources/Controls
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hellosunghyun.fullbrightness.controls
+        PRODUCT_NAME: FullBrightnessControls
+        INFOPLIST_FILE: Sources/Controls/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Sources/Controls/FullBrightnessControls.entitlements
+        ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: NO
+    info:
+      path: Sources/Controls/Info.plist
+      properties:
+        CFBundleDisplayName: Full Brightness Controls
+        CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
+        CFBundleName: FullBrightnessControls
+        CFBundlePackageType: XPC!
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        ITSAppUsesNonExemptEncryption: false
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
