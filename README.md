@@ -4,6 +4,14 @@
 
 Full Brightness is a macOS utility for display-heavy setups. It lists connected displays, shows resolution and HiDPI details, identifies which displays can be controlled, and sets supported displays to your chosen Full brightness level on demand or automatically when a new display connects.
 
+## Why I Built It
+
+Have you had this experience? The monitors on our Academy desks can be adjusted directly from a Mac, so whenever I sat down at a new spot, I would first set the brightness to my preference. I like working at MAX brightness. Raising brightness is a small thing, but I did not want to think about it every time, so I built Full Brightness.
+
+## App Overview
+
+Full Brightness is a small macOS menu bar utility that detects brightness-adjustable displays connected to your Mac and sets them to your chosen Full brightness level in one click. It can apply Full brightness automatically when a new display connects, and it can also be triggered from Control Center, Shortcuts, Siri, and Spotlight.
+
 Current GitHub release: [`2026.05.08.001`](https://github.com/baserize/full-brightness/releases/tag/2026.05.08.001)
 
 ## Requirements
