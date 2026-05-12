@@ -14,7 +14,7 @@ struct DisplayDashboardView: View {
             .padding(24)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .navigationTitle("app.title")
+        .navigationTitle("brightness.title")
         .toolbar {
             ToolbarItemGroup {
                 Button {
@@ -24,7 +24,7 @@ struct DisplayDashboardView: View {
                 }
 
                 Button {
-                    model.setAllDisplaysToFullBrightness()
+                    model.setDisplaysToFullLevel()
                 } label: {
                     Label("action.set_all.short", systemImage: "sun.max.fill")
                 }
@@ -43,10 +43,10 @@ struct DisplayDashboardView: View {
 private struct DashboardHeaderView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("app.title")
+            Text("brightness.title")
                 .font(.largeTitle.weight(.semibold))
 
-            Text("header.subtitle")
+            Text("brightness.subtitle")
                 .foregroundStyle(.secondary)
         }
     }
@@ -60,7 +60,7 @@ private struct DisplayActionPanel: View {
             Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 16) {
                 GridRow {
                     Button {
-                        model.setAllDisplaysToFullBrightness()
+                        model.setDisplaysToFullLevel()
                     } label: {
                         Label {
                             Text(L10n.string("action.set_all.connected_format", model.targetBrightnessPercent))

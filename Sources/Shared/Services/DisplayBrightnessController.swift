@@ -118,6 +118,7 @@ struct DisplayBrightnessController: Sendable {
             serialNumber: CGDisplaySerialNumber(displayID),
             isBuiltin: CGDisplayIsBuiltin(displayID) != 0,
             resolution: displayResolution(displayID: displayID),
+            frame: displayFrame(displayID: displayID),
             brightness: brightness,
             brightnessBackend: backend
         )
@@ -168,5 +169,9 @@ struct DisplayBrightnessController: Sendable {
             backingPixelHeight: height,
             refreshRate: nil
         )
+    }
+
+    private func displayFrame(displayID: CGDirectDisplayID) -> DisplayFrame {
+        DisplayFrame(bounds: CGDisplayBounds(displayID))
     }
 }

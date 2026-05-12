@@ -1,18 +1,18 @@
 import AppIntents
 
-struct SetDisplaysToFullBrightnessIntent: AppIntent {
+struct SetDisplaysToFullLevelIntent: AppIntent {
     static let title: LocalizedStringResource = "intent.set_all.title"
     static let description = IntentDescription("intent.set_all.description")
     static let supportedModes: IntentModes = .foreground(.immediate)
     static let authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
 
     func perform() async throws -> some IntentResult {
-        _ = await BrightnessIntentAction.setAllDisplaysToFullBrightness()
+        _ = await BrightnessIntentAction.setDisplaysToFullLevel()
         return .result()
     }
 }
 
-struct SetAutoFullBrightnessIntent: SetValueIntent {
+struct SetAutoFullLevelIntent: SetValueIntent {
     static let title: LocalizedStringResource = "intent.auto.title"
     static let description = IntentDescription("intent.auto.description")
     static let supportedModes: IntentModes = .foreground(.immediate)
@@ -30,44 +30,44 @@ struct SetAutoFullBrightnessIntent: SetValueIntent {
     }
 
     func perform() async throws -> some IntentResult {
-        _ = await BrightnessIntentAction.setAutoFullBrightness(value)
+        _ = await BrightnessIntentAction.setAutoFullLevel(value)
         return .result()
     }
 }
 
-struct EnableAutoFullBrightnessIntent: AppIntent {
+struct EnableAutoFullLevelIntent: AppIntent {
     static let title: LocalizedStringResource = "intent.auto.enable.title"
     static let description = IntentDescription("intent.auto.enable.description")
     static let supportedModes: IntentModes = .foreground(.immediate)
     static let authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
 
     func perform() async throws -> some IntentResult {
-        _ = await BrightnessIntentAction.setAutoFullBrightness(true)
+        _ = await BrightnessIntentAction.setAutoFullLevel(true)
         return .result()
     }
 }
 
-struct DisableAutoFullBrightnessIntent: AppIntent {
+struct DisableAutoFullLevelIntent: AppIntent {
     static let title: LocalizedStringResource = "intent.auto.disable.title"
     static let description = IntentDescription("intent.auto.disable.description")
     static let supportedModes: IntentModes = .foreground(.immediate)
     static let authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
 
     func perform() async throws -> some IntentResult {
-        _ = await BrightnessIntentAction.setAutoFullBrightness(false)
+        _ = await BrightnessIntentAction.setAutoFullLevel(false)
         return .result()
     }
 }
 
 private enum BrightnessIntentAction {
-    static func setAllDisplaysToFullBrightness() async -> BrightnessRunResult {
+    static func setDisplaysToFullLevel() async -> BrightnessRunResult {
         let preferences = BrightnessPreferences()
         let result = await DisplayBrightnessClient.shared.setAllDisplays(to: preferences.targetBrightnessValue)
         ControlCenterReloader.reloadBrightnessControls()
         return result
     }
 
-    static func setAutoFullBrightness(_ isEnabled: Bool) async -> Int {
+    static func setAutoFullLevel(_ isEnabled: Bool) async -> Int {
         let preferences = BrightnessPreferences()
         preferences.autoFullEnabled = isEnabled
 

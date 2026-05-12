@@ -3,8 +3,8 @@ import WidgetKit
 
 struct SetAllDisplaysControl: ControlWidget {
     var body: some ControlWidgetConfiguration {
-        StaticControlConfiguration(kind: AppConstants.controlKindSetFullBrightness) {
-            ControlWidgetButton(action: SetDisplaysToFullBrightnessIntent()) {
+        StaticControlConfiguration(kind: AppConstants.controlKindSetFullLevel) {
+            ControlWidgetButton(action: SetDisplaysToFullLevelIntent()) {
                 Label("action.set_all.short", systemImage: "sun.max.fill")
             }
         }
@@ -13,10 +13,10 @@ struct SetAllDisplaysControl: ControlWidget {
     }
 }
 
-struct AutoFullBrightnessControl: ControlWidget {
+struct AutoFitBrightnessControl: ControlWidget {
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: AppConstants.controlKindAutoFullMode, provider: AutoModeValueProvider()) { isOn in
-            ControlWidgetToggle(isOn: isOn, action: SetAutoFullBrightnessIntent()) {
+            ControlWidgetToggle(isOn: isOn, action: SetAutoFullLevelIntent()) {
                 Label("control.auto.label", systemImage: isOn ? "sun.max.fill" : "sun.max")
             } valueLabel: { isOn in
                 if isOn {

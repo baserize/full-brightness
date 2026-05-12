@@ -1,4 +1,4 @@
-name: FullBrightness
+name: DisplayFit
 options:
   bundleIdPrefix: com.baserize
   deploymentTarget:
@@ -24,36 +24,36 @@ settings:
     Release:
       SWIFT_ACTIVE_COMPILATION_CONDITIONS: DIRECT_DISTRIBUTION
 targets:
-  FullBrightness:
+  DisplayFit:
     type: application
     platform: macOS
     sources:
       - path: Sources/Shared
       - path: Sources/App
       - path: Sources/Controls/BrightnessControlIntents.swift
-      - path: Sources/Controls/FullBrightnessAppShortcuts.swift
-      - path: Sources/Controls/FullBrightnessControls.swift
+      - path: Sources/Controls/DisplayFitAppShortcuts.swift
+      - path: Sources/Controls/DisplayFitControls.swift
     dependencies:
-      - target: FullBrightnessControls
+      - target: DisplayFitControls
         embed: true
         codeSign: true
     settings:
       base:
         DEVELOPMENT_TEAM: 27LDR382XX
         CODE_SIGN_STYLE: Automatic
-        PRODUCT_BUNDLE_IDENTIFIER: com.baserize.fullbrightness
-        PRODUCT_NAME: FullBrightness
+        PRODUCT_BUNDLE_IDENTIFIER: com.baserize.displayfit
+        PRODUCT_NAME: DisplayFit
         INFOPLIST_FILE: Sources/App/Info.plist
-        CODE_SIGN_ENTITLEMENTS: Sources/App/FullBrightnessDirect.entitlements
+        CODE_SIGN_ENTITLEMENTS: Sources/App/DisplayFitDirect.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: NO
     info:
       path: Sources/App/Info.plist
       properties:
-        CFBundleDisplayName: Full Brightness
+        CFBundleDisplayName: DisplayFit
         CFBundleIconName: AppIcon
         CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
-        CFBundleName: Full Brightness
+        CFBundleName: DisplayFit
         CFBundlePackageType: APPL
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
@@ -61,7 +61,7 @@ targets:
         LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
         NSHumanReadableCopyright: Copyright © 2026 Sunghyun Kim.
         NSPrincipalClass: NSApplication
-  FullBrightnessControls:
+  DisplayFitControls:
     type: app-extension
     platform: macOS
     sources:
@@ -71,17 +71,17 @@ targets:
       base:
         DEVELOPMENT_TEAM: 27LDR382XX
         CODE_SIGN_STYLE: Automatic
-        PRODUCT_BUNDLE_IDENTIFIER: com.baserize.fullbrightness.controls
-        PRODUCT_NAME: FullBrightnessControls
+        PRODUCT_BUNDLE_IDENTIFIER: com.baserize.displayfit.controls
+        PRODUCT_NAME: DisplayFitControls
         INFOPLIST_FILE: Sources/Controls/Info.plist
-        CODE_SIGN_ENTITLEMENTS: Sources/Controls/FullBrightnessControls.entitlements
+        CODE_SIGN_ENTITLEMENTS: Sources/Controls/DisplayFitControls.entitlements
         ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: NO
     info:
       path: Sources/Controls/Info.plist
       properties:
-        CFBundleDisplayName: Full Brightness Controls
+        CFBundleDisplayName: DisplayFit Controls
         CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
-        CFBundleName: FullBrightnessControls
+        CFBundleName: DisplayFitControls
         CFBundlePackageType: XPC!
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)

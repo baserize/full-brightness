@@ -23,7 +23,7 @@ struct MenuBarControlView: View {
             }
 
             Button {
-                model.setAllDisplaysToFullBrightness()
+                model.setDisplaysToFullLevel()
             } label: {
                 Label {
                     Text(L10n.string("action.set_all.all_displays_format", model.targetBrightnessPercent))
@@ -41,6 +41,22 @@ struct MenuBarControlView: View {
                 } icon: {
                     Image(systemName: "arrow.triangle.2.circlepath")
                 }
+            }
+            .toggleStyle(.switch)
+
+            Divider()
+
+            Button {
+                model.applyActiveDisplayLayout()
+            } label: {
+                Label("arrangement.action.apply_saved", systemImage: "rectangle.3.group")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .disabled(model.activeDisplayLayoutProfile == nil)
+
+            Toggle(isOn: $model.autoFitEnabled) {
+                Label("arrangement.auto_fit_on_connect", systemImage: "wand.and.stars")
             }
             .toggleStyle(.switch)
 

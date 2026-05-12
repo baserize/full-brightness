@@ -29,6 +29,19 @@ struct SettingsView: View {
                 }
             }
 
+            Section("settings.section.arrangement") {
+                Toggle(isOn: $model.autoFitEnabled) {
+                    Label("arrangement.auto_fit_on_connect", systemImage: "wand.and.stars")
+                }
+
+                Toggle(isOn: $model.promptForNewDisplays) {
+                    Label("arrangement.prompt_for_new_displays", systemImage: "questionmark.bubble")
+                }
+                .disabled(model.defaultNewDisplayPlacementRule != nil)
+
+                NewDisplayDefaultPlacementPicker(model: model)
+            }
+
             Section("settings.section.general") {
                 Toggle(isOn: launchAtLoginBinding) {
                     Label("settings.launch_at_login", systemImage: "power")

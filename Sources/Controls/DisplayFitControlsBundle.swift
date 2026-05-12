@@ -2,9 +2,9 @@ import SwiftUI
 import WidgetKit
 
 @main
-struct FullBrightnessControlsBundle: WidgetBundle {
+struct DisplayFitControlsBundle: WidgetBundle {
     var body: some Widget {
         SetAllDisplaysControl()
-        AutoFullBrightnessControl()
+        AutoFitBrightnessControl()
     }
 }

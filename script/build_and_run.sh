@@ -2,17 +2,15 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PROJECT_NAME="FullBrightness"
-APP_NAME="FullBrightness"
-DISPLAY_NAME="Full Brightness"
-APP_BUNDLE_IDENTIFIER="com.baserize.fullbrightness"
-LEGACY_APP_BUNDLE_IDENTIFIERS=("com.hellosunghyun.fullbrightness")
-CONTROL_EXTENSION_BUNDLE_IDENTIFIER="com.baserize.fullbrightness.controls"
-LEGACY_CONTROL_EXTENSION_BUNDLE_IDENTIFIERS=("com.hellosunghyun.fullbrightness.controls")
+PROJECT_NAME="DisplayFit"
+APP_NAME="DisplayFit"
+DISPLAY_NAME="DisplayFit"
+APP_BUNDLE_IDENTIFIER="com.baserize.displayfit"
+CONTROL_EXTENSION_BUNDLE_IDENTIFIER="com.baserize.displayfit.controls"
 DERIVED_DATA_PATH="$ROOT_DIR/.build/DerivedData"
 BUILD_STYLE="debug"
 CONFIGURATION="Debug"
-INSTALL_PATH="${FULL_BRIGHTNESS_INSTALL_PATH:-/Applications/$DISPLAY_NAME.app}"
+INSTALL_PATH="${DISPLAYFIT_INSTALL_PATH:-/Applications/$DISPLAY_NAME.app}"
 MODE="run"
 INSTALL_APP=1
 
@@ -54,36 +52,20 @@ bundle_identifier() {
   /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$1/Contents/Info.plist" 2>/dev/null || true
 }
 
-is_known_install_identifier() {
+bundle_display_name() {
+  /usr/libexec/PlistBuddy -c "Print :CFBundleDisplayName" "$1/Contents/Info.plist" 2>/dev/null || true
+}
+
+is_known_install_bundle() {
+  local app_path="$1"
   local identifier="$1"
 
+  identifier="$(bundle_identifier "$app_path")"
   if [[ "$identifier" == "$APP_BUNDLE_IDENTIFIER" ]]; then
     return 0
   fi
 
-  for legacy_identifier in "${LEGACY_APP_BUNDLE_IDENTIFIERS[@]}"; do
-    if [[ "$identifier" == "$legacy_identifier" ]]; then
-      return 0
-    fi
-  done
-
-  return 1
-}
-
-is_known_control_extension_identifier() {
-  local identifier="$1"
-
-  if [[ "$identifier" == "$CONTROL_EXTENSION_BUNDLE_IDENTIFIER" ]]; then
-    return 0
-  fi
-
-  for legacy_identifier in "${LEGACY_CONTROL_EXTENSION_BUNDLE_IDENTIFIERS[@]}"; do
-    if [[ "$identifier" == "$legacy_identifier" ]]; then
-      return 0
-    fi
-  done
-
-  return 1
+  [[ "$(bundle_display_name "$app_path")" == "$DISPLAY_NAME" ]]
 }
 
 stop_running_processes() {
@@ -91,8 +73,9 @@ stop_running_processes() {
 
   matched_processes="$(
     ps -axo pid=,ppid=,args= | awk '
-      index($0, "FullBrightness.app/Contents/MacOS/FullBrightness") ||
-      index($0, "FullBrightnessControls.appex/Contents/MacOS/FullBrightnessControls") {
+      index($0, "/Applications/DisplayFit.app/Contents/MacOS/") ||
+      index($0, "DisplayFit.app/Contents/MacOS/DisplayFit") ||
+      index($0, "DisplayFitControls.appex/Contents/MacOS/DisplayFitControls") {
         print $1 " " $2
       }
     '
@@ -110,10 +93,10 @@ stop_running_processes() {
 
   sleep 0.2
   pkill -x "$APP_NAME" >/dev/null 2>&1 || true
-  pkill -x "FullBrightnessControls" >/dev/null 2>&1 || true
+  pkill -x "DisplayFitControls" >/dev/null 2>&1 || true
   sleep 0.2
   pkill -9 -x "$APP_NAME" >/dev/null 2>&1 || true
-  pkill -9 -x "FullBrightnessControls" >/dev/null 2>&1 || true
+  pkill -9 -x "DisplayFitControls" >/dev/null 2>&1 || true
 }
 
 unregister_discovered_control_extensions() {
@@ -125,24 +108,16 @@ unregister_discovered_control_extensions() {
     mdfind "kMDItemCFBundleIdentifier == '$CONTROL_EXTENSION_BUNDLE_IDENTIFIER'" 2>/dev/null || true
   )
 
-  for legacy_identifier in "${LEGACY_CONTROL_EXTENSION_BUNDLE_IDENTIFIERS[@]}"; do
-    while IFS= read -r extension_path; do
-      if [[ -d "$extension_path" ]]; then
-        pluginkit -r "$extension_path" >/dev/null 2>&1 || true
-      fi
-    done < <(
-      mdfind "kMDItemCFBundleIdentifier == '$legacy_identifier'" 2>/dev/null || true
-    )
-  done
 }
 
 register_installed_app() {
   local installed_app_path="$1"
-  local extension_path="$installed_app_path/Contents/PlugIns/FullBrightnessControls.appex"
+  local extension_path
+  extension_path="$(find "$installed_app_path/Contents/PlugIns" -maxdepth 1 -name "*.appex" -type d -print -quit 2>/dev/null || true)"
 
   /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$installed_app_path"
 
-  if [[ -d "$extension_path" ]]; then
+  if [[ -n "$extension_path" && -d "$extension_path" ]]; then
     pluginkit -a "$extension_path"
   fi
 
@@ -163,23 +138,24 @@ install_app_bundle() {
     local existing_identifier
     existing_identifier="$(bundle_identifier "$INSTALL_PATH")"
 
-    if ! is_known_install_identifier "$existing_identifier"; then
+    if ! is_known_install_bundle "$INSTALL_PATH"; then
       echo "Refusing to replace $INSTALL_PATH because its bundle identifier is '$existing_identifier'." >&2
       exit 1
     fi
 
-    local existing_extension_path="$INSTALL_PATH/Contents/PlugIns/FullBrightnessControls.appex"
-    if [[ -d "$existing_extension_path" ]]; then
+    local existing_extension_path
+    existing_extension_path="$(find "$INSTALL_PATH/Contents/PlugIns" -maxdepth 1 -name "*.appex" -type d -print -quit 2>/dev/null || true)"
+    if [[ -n "$existing_extension_path" && -d "$existing_extension_path" ]]; then
       pluginkit -r "$existing_extension_path" >/dev/null 2>&1 || true
     fi
   fi
 
-  local built_extension_path="$built_app_path/Contents/PlugIns/FullBrightnessControls.appex"
+  local built_extension_path="$built_app_path/Contents/PlugIns/DisplayFitControls.appex"
   if [[ -d "$built_extension_path" ]]; then
     local built_extension_identifier
     built_extension_identifier="$(bundle_identifier "$built_extension_path")"
 
-    if is_known_control_extension_identifier "$built_extension_identifier"; then
+    if [[ "$built_extension_identifier" == "$CONTROL_EXTENSION_BUNDLE_IDENTIFIER" ]]; then
       pluginkit -r "$built_extension_path" >/dev/null 2>&1 || true
     fi
   fi
@@ -206,6 +182,7 @@ xcodebuild \
   -scheme "$PROJECT_NAME" \
   -configuration "$CONFIGURATION" \
   -derivedDataPath "$DERIVED_DATA_PATH" \
+  -allowProvisioningUpdates \
   build
 
 APP_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION/$APP_NAME.app"
@@ -226,7 +203,7 @@ fi
 /usr/bin/open -n "$RUN_APP_PATH"
 
 if [[ "$MODE" == "logs" ]]; then
-  /usr/bin/log stream --style compact --predicate 'process == "FullBrightness"'
+  /usr/bin/log stream --style compact --predicate 'process == "DisplayFit"'
   exit 0
 fi
 

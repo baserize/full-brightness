@@ -1,11 +1,11 @@
 import AppIntents
 
-struct FullBrightnessAppShortcuts: AppShortcutsProvider {
+struct DisplayFitAppShortcuts: AppShortcutsProvider {
     static let shortcutTileColor: ShortcutTileColor = .blue
 
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
-            intent: SetDisplaysToFullBrightnessIntent(),
+            intent: SetDisplaysToFullLevelIntent(),
             phrases: [
                 "Set displays to full brightness with \(.applicationName)",
                 "Make monitors full brightness with \(.applicationName)",
@@ -16,7 +16,7 @@ struct FullBrightnessAppShortcuts: AppShortcutsProvider {
         )
 
         AppShortcut(
-            intent: EnableAutoFullBrightnessIntent(),
+            intent: EnableAutoFullLevelIntent(),
             phrases: [
                 "Turn on auto brightness with \(.applicationName)",
                 "Auto full brightness with \(.applicationName)",
@@ -27,7 +27,7 @@ struct FullBrightnessAppShortcuts: AppShortcutsProvider {
         )
 
         AppShortcut(
-            intent: DisableAutoFullBrightnessIntent(),
+            intent: DisableAutoFullLevelIntent(),
             phrases: [
                 "Turn off auto brightness with \(.applicationName)",
                 "Stop auto full brightness with \(.applicationName)",

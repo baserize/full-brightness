@@ -1,18 +1,20 @@
-"app.title" = "Full Brightness";
-"sidebar.displays" = "모니터";
-"header.subtitle" = "밝기 조정 가능한 모니터를 찾고, 필요할 때 내가 정한 Full 밝기로 맞춥니다.";
+"app.title" = "DisplayFit";
+"sidebar.displays" = "밝기";
+"sidebar.arrangement" = "배치";
+"header.subtitle" = "연결된 모니터를 내 밝기와 책상 배치에 맞춥니다.";
 
 "action.refresh" = "새로고침";
 "action.set_all.short" = "Full";
 "action.set_all.connected_format" = "연결된 모니터 Full (%d%%)";
 "action.set_all.all_displays_format" = "모든 모니터 Full (%d%%)";
 "action.auto_on_connect_format" = "연결 시 자동 Full (%d%%)";
-"action.open_app" = "Full Brightness 열기";
+"action.open_app" = "DisplayFit 열기";
 "action.settings" = "설정";
 "action.quit" = "종료";
 
 "settings.section.brightness" = "Full 밝기";
 "settings.full_level" = "Full 기준 밝기";
+"settings.section.arrangement" = "모니터 배치";
 "settings.section.general" = "일반";
 "settings.launch_at_login" = "로그인 시 실행";
 "settings.launch_at_login.requires_approval" = "시스템 설정에서 승인이 필요합니다";
@@ -47,11 +49,52 @@
 "display.name.fallback_format" = "디스플레이 %u-%u";
 
 "brightness.percent_format" = "%d%%";
+"brightness.title" = "밝기";
+"brightness.subtitle" = "연결된 모니터 밝기를 내 Full 기준에 맞춥니다.";
 "brightness.result.none" = "밝기 조정 가능한 모니터가 없습니다.";
 "brightness.result.success_format" = "%d개 모니터를 %d%%로 설정했습니다.";
 "brightness.result.partial_format" = "%d/%d개 모니터를 %d%%로 설정했습니다.";
 
-"control.set_all.display_name" = "모니터 Full";
+"arrangement.title" = "배치";
+"arrangement.subtitle" = "현재 모니터 배치를 저장하고, 모니터가 연결될 때 다시 적용합니다.";
+"arrangement.current_layout" = "현재 배치";
+"arrangement.main_display" = "주 모니터";
+"arrangement.saved_profiles" = "저장된 Fit";
+"arrangement.profile_picker" = "저장된 Fit";
+"arrangement.profile.none" = "저장된 Fit 없음";
+"arrangement.profile.empty" = "저장된 모니터 Fit 없음";
+"arrangement.profile.display_count" = "모니터";
+"arrangement.profile.updated" = "수정됨";
+"arrangement.profile.default_name_format" = "DisplayFit 배치 (%d개 모니터)";
+"arrangement.profile.temporary_fit" = "임시 DisplayFit";
+"arrangement.action.save" = "저장";
+"arrangement.action.apply" = "적용";
+"arrangement.action.save_current" = "현재 배치 저장";
+"arrangement.action.apply_saved" = "저장된 Fit 적용";
+"arrangement.action.delete" = "삭제";
+"arrangement.auto_fit_on_connect" = "연결 시 자동 Fit";
+"arrangement.prompt_for_new_displays" = "새 모니터 발견 시 묻기";
+"arrangement.default_new_display_position" = "다음 새 모니터 기본 위치";
+"arrangement.default_new_display_position.prompt" = "연결 시 묻기";
+"arrangement.rule.right" = "오른쪽에 배치";
+"arrangement.rule.left" = "왼쪽에 배치";
+"arrangement.rule.above" = "위에 배치";
+"arrangement.rule.below" = "아래에 배치";
+"arrangement.result.saved_format" = "%d개 모니터 배치를 저장했습니다.";
+"arrangement.result.applied_format" = "%d개 모니터에 저장된 배치를 적용했습니다.";
+"arrangement.result.no_displays" = "사용 가능한 모니터가 없습니다.";
+"arrangement.result.no_profile" = "DisplayFit을 적용하려면 먼저 배치를 저장하세요.";
+"arrangement.result.no_matches" = "저장된 배치와 일치하는 연결 모니터가 없습니다.";
+"arrangement.result.failed" = "macOS가 이 모니터 배치를 적용하지 못했습니다.";
+"arrangement.result.partial_format" = "%d/%d개 모니터에 배치를 적용했습니다.";
+
+"new_display.title" = "새 모니터 감지";
+"new_display.subtitle_format" = "%@은 아직 저장된 DisplayFit 배치에 없습니다.";
+"new_display.action.not_now" = "나중에";
+"new_display.action.save_current" = "현재 저장";
+"new_display.action.apply_saved" = "저장된 Fit 적용";
+
+"control.set_all.display_name" = "DisplayFit Full";
 "control.set_all.description" = "밝기 조정 가능한 연결 모니터를 내가 정한 Full 밝기로 즉시 설정합니다.";
 "control.auto.display_name" = "연결 시 Full";
 "control.auto.description" = "새 모니터가 연결되면 밝기를 내가 정한 Full 밝기로 자동 설정합니다.";

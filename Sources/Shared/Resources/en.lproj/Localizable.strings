@@ -1,18 +1,20 @@
-"app.title" = "Full Brightness";
-"sidebar.displays" = "Displays";
-"header.subtitle" = "Find brightness-adjustable displays and set them to your chosen Full level when needed.";
+"app.title" = "DisplayFit";
+"sidebar.displays" = "Brightness";
+"sidebar.arrangement" = "Arrangement";
+"header.subtitle" = "Fit connected displays to your brightness and desk layout.";
 
 "action.refresh" = "Refresh";
 "action.set_all.short" = "Full";
 "action.set_all.connected_format" = "Connected displays Full (%d%%)";
 "action.set_all.all_displays_format" = "All displays Full (%d%%)";
 "action.auto_on_connect_format" = "Auto Full (%d%%) on connect";
-"action.open_app" = "Open Full Brightness";
+"action.open_app" = "Open DisplayFit";
 "action.settings" = "Settings";
 "action.quit" = "Quit";
 
-"settings.section.brightness" = "Full Brightness";
+"settings.section.brightness" = "Brightness";
 "settings.full_level" = "Full brightness level";
+"settings.section.arrangement" = "Display Arrangement";
 "settings.section.general" = "General";
 "settings.launch_at_login" = "Launch at Login";
 "settings.launch_at_login.requires_approval" = "Approval required in System Settings";
@@ -47,11 +49,52 @@
 "display.name.fallback_format" = "Display %u-%u";
 
 "brightness.percent_format" = "%d%%";
+"brightness.title" = "Brightness";
+"brightness.subtitle" = "Fit connected display brightness to your Full level.";
 "brightness.result.none" = "There are no brightness-adjustable displays.";
 "brightness.result.success_format" = "%d displays set to %d%%.";
 "brightness.result.partial_format" = "%d/%d displays set to %d%%.";
 
-"control.set_all.display_name" = "Display Full";
+"arrangement.title" = "Arrangement";
+"arrangement.subtitle" = "Save the current monitor layout and apply it when displays connect.";
+"arrangement.current_layout" = "Current layout";
+"arrangement.main_display" = "Main display";
+"arrangement.saved_profiles" = "Saved fits";
+"arrangement.profile_picker" = "Saved fit";
+"arrangement.profile.none" = "No saved fit";
+"arrangement.profile.empty" = "No saved display fit";
+"arrangement.profile.display_count" = "Displays";
+"arrangement.profile.updated" = "Updated";
+"arrangement.profile.default_name_format" = "DisplayFit Layout (%d displays)";
+"arrangement.profile.temporary_fit" = "Temporary DisplayFit";
+"arrangement.action.save" = "Save";
+"arrangement.action.apply" = "Apply";
+"arrangement.action.save_current" = "Save Current Layout";
+"arrangement.action.apply_saved" = "Apply Saved Fit";
+"arrangement.action.delete" = "Delete";
+"arrangement.auto_fit_on_connect" = "Auto Fit on connect";
+"arrangement.prompt_for_new_displays" = "Ask when new displays appear";
+"arrangement.default_new_display_position" = "Next new display default position";
+"arrangement.default_new_display_position.prompt" = "Ask on connect";
+"arrangement.rule.right" = "Place right";
+"arrangement.rule.left" = "Place left";
+"arrangement.rule.above" = "Place above";
+"arrangement.rule.below" = "Place below";
+"arrangement.result.saved_format" = "Saved layout for %d displays.";
+"arrangement.result.applied_format" = "Applied saved layout to %d displays.";
+"arrangement.result.no_displays" = "No displays are available.";
+"arrangement.result.no_profile" = "Save a layout before applying DisplayFit.";
+"arrangement.result.no_matches" = "No connected displays matched the saved layout.";
+"arrangement.result.failed" = "macOS could not apply that display layout.";
+"arrangement.result.partial_format" = "Applied layout to %d/%d displays.";
+
+"new_display.title" = "New display detected";
+"new_display.subtitle_format" = "%@ is not in a saved DisplayFit layout yet.";
+"new_display.action.not_now" = "Not Now";
+"new_display.action.save_current" = "Save Current";
+"new_display.action.apply_saved" = "Apply Saved";
+
+"control.set_all.display_name" = "DisplayFit Full";
 "control.set_all.description" = "Immediately sets adjustable connected displays to your Full brightness level.";
 "control.auto.display_name" = "On connect Full";
 "control.auto.description" = "Automatically sets brightness to your Full level when a new display connects.";

@@ -2,15 +2,16 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PROJECT_NAME="FullBrightness"
-SCHEME="FullBrightness"
+PROJECT_NAME="DisplayFit"
+SCHEME="DisplayFit"
 CONFIGURATION="Release"
-ARCHIVE_PATH="$ROOT_DIR/.build/archives/FullBrightness.xcarchive"
+ARCHIVE_PATH="$ROOT_DIR/.build/archives/DisplayFit.xcarchive"
 EXPORT_PATH="$ROOT_DIR/.build/export/direct"
 DIST_PATH="$ROOT_DIR/.build/dist/direct"
 EXPORT_OPTIONS="$ROOT_DIR/packaging/ExportOptions-DeveloperID.plist"
 EXPORTED_APP_PATH=""
-APP_PATH="$DIST_PATH/Full Brightness.app"
+APP_DISPLAY_NAME="DisplayFit"
+APP_PATH="$DIST_PATH/$APP_DISPLAY_NAME.app"
 DMG_STAGING_PATH="$DIST_PATH/dmg-root"
 PACKAGE_MODE="developer-id"
 DEVELOPER_ID_APPLICATION=""
@@ -71,7 +72,7 @@ if [[ "$PACKAGE_MODE" == "developer-id" ]]; then
   EXPORTED_APP_PATH="$(find "$EXPORT_PATH" -maxdepth 1 -name "*.app" -type d -print -quit)"
 else
   ./script/build_and_run.sh --release --build-only --no-install
-  EXPORTED_APP_PATH="$ROOT_DIR/.build/DerivedData/Build/Products/Release/FullBrightness.app"
+  EXPORTED_APP_PATH="$ROOT_DIR/.build/DerivedData/Build/Products/Release/DisplayFit.app"
 fi
 
 if [[ -z "$EXPORTED_APP_PATH" || ! -d "$EXPORTED_APP_PATH" ]]; then
@@ -87,9 +88,9 @@ DEFAULT_RELEASE_VERSION="$VERSION.$BUILD"
 if [[ "$BUILD" =~ ^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{3})$ ]]; then
   DEFAULT_RELEASE_VERSION="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}.${BASH_REMATCH[4]}"
 fi
-RELEASE_VERSION="${FULL_BRIGHTNESS_RELEASE_VERSION:-$DEFAULT_RELEASE_VERSION}"
-ZIP_ARTIFACT_NAME="Full-Brightness-$RELEASE_VERSION.zip"
-DMG_ARTIFACT_NAME="Full-Brightness-$RELEASE_VERSION.dmg"
+RELEASE_VERSION="${DISPLAYFIT_RELEASE_VERSION:-$DEFAULT_RELEASE_VERSION}"
+ZIP_ARTIFACT_NAME="DisplayFit-$RELEASE_VERSION.zip"
+DMG_ARTIFACT_NAME="DisplayFit-$RELEASE_VERSION.dmg"
 ZIP_PATH="$DIST_PATH/$ZIP_ARTIFACT_NAME"
 DMG_PATH="$DIST_PATH/$DMG_ARTIFACT_NAME"
 
@@ -97,11 +98,11 @@ create_dmg() {
   rm -rf "$DMG_STAGING_PATH" "$DMG_PATH"
   mkdir -p "$DMG_STAGING_PATH"
 
-  ditto "$APP_PATH" "$DMG_STAGING_PATH/Full Brightness.app"
+  ditto "$APP_PATH" "$DMG_STAGING_PATH/$APP_DISPLAY_NAME.app"
   ln -s /Applications "$DMG_STAGING_PATH/Applications"
 
   hdiutil create \
-    -volname "Full Brightness" \
+    -volname "$APP_DISPLAY_NAME" \
     -srcfolder "$DMG_STAGING_PATH" \
     -ov \
     -format UDZO \

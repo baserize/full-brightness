@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 @main
-struct FullBrightnessApp: App {
+struct DisplayFitApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var model = AppModel()
 
@@ -15,11 +15,11 @@ struct FullBrightnessApp: App {
         .commands {
             CommandGroup(after: .appInfo) {
                 Button(L10n.string("action.set_all.all_displays_format", model.targetBrightnessPercent)) {
-                    model.setAllDisplaysToFullBrightness()
+                    model.setDisplaysToFullLevel()
                 }
                 .keyboardShortcut(
-                    model.shortcut(for: .setFullBrightness).keyEquivalent,
-                    modifiers: model.shortcut(for: .setFullBrightness).eventModifiers
+                    model.shortcut(for: .setFullLevel).keyEquivalent,
+                    modifiers: model.shortcut(for: .setFullLevel).eventModifiers
                 )
 
                 Button("action.refresh") {
@@ -29,6 +29,11 @@ struct FullBrightnessApp: App {
                     model.shortcut(for: .refreshDisplays).keyEquivalent,
                     modifiers: model.shortcut(for: .refreshDisplays).eventModifiers
                 )
+
+                Button("arrangement.action.apply_saved") {
+                    model.applyActiveDisplayLayout()
+                }
+                .disabled(model.activeDisplayLayoutProfile == nil)
             }
         }
 

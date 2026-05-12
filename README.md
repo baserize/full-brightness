@@ -1,189 +1,213 @@
-# Full Brightness
+# DisplayFit
 
 [한국어 문서](README.ko.md)
 
-Full Brightness is a macOS utility for display-heavy setups. It lists connected displays, shows resolution and HiDPI details, identifies which displays can be controlled, and sets supported displays to your chosen Full brightness level on demand or automatically when a new display connects.
+DisplayFit is a macOS menu bar utility that restores connected displays to your preferred brightness and desk layout. Use it from the main window, menu bar, Control Center, Shortcuts, Siri, or Spotlight.
 
-## Why I Built It
+Current release: [`2026.05.08.001`](https://github.com/baserize/displayfit/releases/tag/2026.05.08.001)
 
-Have you had this experience? The monitors on our Academy desks can be adjusted directly from a Mac, so whenever I sat down at a new spot, I would first set the brightness to my preference. I like working at MAX brightness. Raising brightness is a small thing, but I did not want to think about it every time, so I built Full Brightness.
+## Why
 
-## App Overview
+I built DisplayFit for shared desk setups where monitor brightness and arrangement are always left in someone else's state. The desk monitors at the Apple Developer Academy I attend can be adjusted directly from a Mac, but every time I moved to a new seat I had to set brightness and layout again. I wanted that setup step to disappear.
 
-Full Brightness is a small macOS menu bar utility that detects brightness-adjustable displays connected to your Mac and sets them to your chosen Full brightness level in one click. It can apply Full brightness automatically when a new display connects, and it can also be triggered from Control Center, Shortcuts, Siri, and Spotlight.
+## Features
 
-Current GitHub release: [`2026.05.08.001`](https://github.com/baserize/full-brightness/releases/tag/2026.05.08.001)
+- **Choose your own Full level**
+  Set the brightness level that counts as Full for your setup, from 1% to 100%.
+
+- **Set connected displays at once**
+  Apply your Full level to every connected display that macOS allows the app to control.
+
+- **Auto Full on connect**
+  When enabled, newly connected supported displays are raised to your Full level automatically.
+
+- **Save display layout fits**
+  Save the current monitor positions as a DisplayFit profile and apply it again later.
+
+- **Auto Fit on connect**
+  Apply a saved display layout when known monitors connect.
+
+- **New display prompt**
+  When a new monitor appears, DisplayFit can ask whether to save the current layout, apply a saved fit, or place the display to the left, right, above, or below the main display.
+
+- **Display support status**
+  See which displays are brightness-adjustable and which ones are read-only or unsupported.
+
+- **Resolution and HiDPI details**
+  Shows logical resolution, backing pixel resolution, HiDPI scale, and refresh rate when macOS reports them.
+
+- **Live brightness refresh**
+  Updates the display list when brightness changes outside the app, including macOS display controls and hardware keys.
+
+- **Control Center controls**
+  Adds two WidgetKit controls:
+  - `Display Full`: apply your Full level now.
+  - `On connect Full`: toggle automatic Full brightness for newly connected displays.
+
+- **Menu bar utility**
+  Access refresh, one-click Full brightness, saved layout application, auto modes, display status, settings, app opening, and quit from the menu bar.
+
+- **App Shortcuts**
+  Provides localized Shortcuts, Siri, and Spotlight actions:
+  - `Displays Full`
+  - `Auto Full On`
+  - `Auto Full Off`
+
+- **Custom keyboard shortcuts**
+  Record shortcuts for setting displays to Full and refreshing the display list. Duplicate and reserved shortcuts are rejected before they are saved.
+
+- **English and Korean**
+  Includes English and Korean UI strings and documentation.
 
 ## Requirements
 
 - macOS 26 or newer
 - Apple Silicon or Intel Mac
-- Xcode 26+ only when building from source
-- For the default Direct build: Apple-native displays exposed through macOS `DisplayServices`, or displays that expose writable brightness through public IOKit brightness parameters
-
-Some monitors, docks, cables, KVMs, and DisplayLink-style adapters block brightness control. Full Brightness still lists those displays, but marks them as unsupported instead of changing them blindly.
-
-## Key Features
-
-- **Brightness-capable display detection**  
-  Lists connected displays and clearly marks whether brightness can be read or written.
-
-- **Custom Full brightness level**  
-  Lets you define what Full means for your setup from 1% to 100% in Settings.
-
-- **One-click Full brightness**  
-  Sets every adjustable connected display to your Full level from the main window, menu bar, Control Center, Shortcuts, Siri, or Spotlight.
-
-- **Automatic Full brightness on connection**  
-  When auto mode is enabled, newly connected adjustable displays are raised to your Full level automatically.
-
-- **Live brightness refresh**  
-  Keeps the display list in sync when brightness changes outside the app, including macOS display controls and hardware keys.
-
-- **Control Center controls**  
-  Provides two WidgetKit controls for macOS Control Center:
-  - `Display Full`: instantly sets supported displays to your Full level.
-  - `On connect Full`: toggles automatic Full brightness for newly connected displays.
-
-- **Menu bar utility**  
-  Includes a compact menu bar extra with refresh, one-click Full brightness, auto mode, display status, app opening, settings, and quit actions.
-
-- **Native Settings and Launch at Login**  
-  Uses a standard macOS Settings window for the Full brightness level, keyboard shortcuts, and launch at login.
-
-- **Custom keyboard shortcuts**  
-  Lets you record shortcuts for setting displays to Full and refreshing the display list. Duplicate and reserved shortcut combinations are rejected before they are saved.
-
-- **App Shortcuts integration**  
-  Exposes App Intents-backed shortcuts for Shortcuts, Siri, and Spotlight:
-  - `Displays Full`
-  - `Auto Full On`
-  - `Auto Full Off`
-
-- **Resolution and HiDPI details**  
-  Shows logical resolution, HiDPI scale, backing pixel resolution, and refresh rate when macOS reports them.
-
-- **English and Korean localization**  
-  Supports English and Korean UI text based on the system or app language.
+- Xcode 26 or newer only when building from source
 
 ## Install
 
-### GitHub Release
+### DMG, Recommended
 
-Download the notarized DMG from the [latest release page](https://github.com/baserize/full-brightness/releases/latest), open it, and drag `Full Brightness.app` to `Applications`.
+Download the notarized DMG from the [latest release page](https://github.com/baserize/displayfit/releases/latest), open it, and drag the app to `Applications`.
 
 Direct download:
 
 ```sh
-curl -L -o Full-Brightness-2026.05.08.001.dmg \
-  https://github.com/baserize/full-brightness/releases/download/2026.05.08.001/Full-Brightness-2026.05.08.001.dmg
-open Full-Brightness-2026.05.08.001.dmg
+curl -L -o DisplayFit-2026.05.08.001.dmg \
+  https://github.com/baserize/displayfit/releases/download/2026.05.08.001/DisplayFit-2026.05.08.001.dmg
+open DisplayFit-2026.05.08.001.dmg
 ```
 
-The DMG and app are signed with Developer ID and notarized by Apple for direct distribution. A ZIP asset is also published for automation, but the DMG is the default install path.
+The DMG and app are Developer ID signed and Apple notarized for direct distribution. A ZIP asset is also published for automation and troubleshooting, but the DMG is the default install path.
 
 ### Homebrew
 
-Install through the repo's cask tap:
+Install through the repo cask tap:
 
 ```sh
-brew tap baserize/full-brightness https://github.com/baserize/full-brightness
-brew install --cask full-brightness
+brew tap baserize/displayfit https://github.com/baserize/displayfit
+brew install --cask displayfit
 ```
 
 Or install directly from the cask URL:
 
 ```sh
-brew install --cask https://raw.githubusercontent.com/baserize/full-brightness/main/Casks/full-brightness.rb
+brew install --cask https://raw.githubusercontent.com/baserize/displayfit/main/Casks/displayfit.rb
 ```
 
-To remove the app:
+Uninstall:
 
 ```sh
-brew uninstall --cask full-brightness
+brew uninstall --cask displayfit
 ```
 
-To remove app data as well:
+Remove app data as well:
 
 ```sh
-brew uninstall --zap --cask full-brightness
+brew uninstall --zap --cask displayfit
 ```
+
+## Why Direct Distribution
+
+DisplayFit is not targeting App Store distribution. To control Apple built-in displays in a way that matches macOS brightness behavior, the direct distribution build uses a runtime-loaded private `DisplayServices` brightness path with a public IOKit fallback. Public APIs alone are limited for this use case, especially on Apple-native display brightness paths.
+
+Because that private display path may not satisfy App Store review requirements, DisplayFit is distributed through GitHub Releases and Homebrew instead.
 
 ## Use
 
-1. Open Full Brightness.
+1. Open DisplayFit.
 2. Review the display list and support status.
-3. Open Settings and choose your Full brightness level if 100% is not the right target for your setup.
-4. Click `Connected displays Full` to set all supported displays to that level.
-5. Turn on `Auto Full on connect` if newly connected supported displays should always be raised to your Full level.
-6. Use Settings from the toolbar or menu bar extra to enable launch at login.
+3. Open Settings and choose your Full brightness level if 100% is not the right target.
+4. Click `Connected displays Full` to apply that level to all supported displays.
+5. Turn on `Auto Full on connect` if new supported displays should be raised automatically.
+6. Open Arrangement and click `Save Current Layout` to save the current monitor placement.
+7. Turn on `Auto Fit on connect` if known displays should be arranged automatically.
+8. Enable launch at login from Settings if you want the app ready after restart.
 
 ## Control Center
 
-After installing or running the app, open Control Center customization, search for Full Brightness, and add the two controls. If the bundle identifier or control kind changes between builds, remove the old controls and add the new ones again.
+After installing or running the app, open Control Center customization and search for DisplayFit. Add the controls if you want one-click brightness control without opening the app.
 
-## App Shortcuts
-
-Open Shortcuts or Spotlight and search for Full Brightness. The app provides localized App Intents-backed shortcuts for setting displays to your Full level, turning auto mode on, and turning auto mode off.
+If macOS still shows an older control after a local rebuild, remove the old control, run the app from `/Applications/DisplayFit.app`, and add the controls again.
 
 ## Display Support
 
-The default build is the **Direct distribution** build. It uses Apple's private `DisplayServices` entry points through runtime symbol loading so Apple built-in displays and other Apple-native brightness paths can be controlled in direct distribution builds.
+DisplayFit can control brightness when macOS exposes a writable brightness path. The current Direct build targets:
 
-The Direct build falls back to public IOKit `kIODisplayBrightnessKey` when `DisplayServices` is unavailable for a display.
+- Apple built-in displays and Apple-native display brightness paths exposed through macOS `DisplayServices`
+- Displays that expose writable brightness through public IOKit `kIODisplayBrightnessKey`
 
-Direct builds use `Sources/App/FullBrightnessDirect.entitlements` for the main app, without App Sandbox, while the Control Center extension keeps its sandbox and app-group entitlements.
+Some displays will still appear as unsupported. Common causes:
 
-General external monitors that only support DDC/CI may still be listed as unsupported. They need a separate DDC backend and should be treated as a future direct-distribution expansion, not as part of the current Apple-native brightness path.
+- The monitor only supports DDC/CI brightness control
+- A dock, KVM, cable, adapter, or DisplayLink-style driver hides the brightness channel
+- macOS reports the display but does not expose writable brightness controls for it
 
-Unsupported displays usually fail because the display, dock, cable, adapter, or driver does not expose a writable brightness channel to macOS.
+Unsupported displays are still listed so you can confirm that macOS sees them. The app does not guess or simulate brightness when the display does not expose a real writable control path.
 
-## Build
+## Display Arrangement
+
+DisplayFit reads each connected display's bounds with Core Graphics and saves positions by display fingerprint. A fingerprint combines vendor ID, product ID, serial number when available, display name, and logical resolution so saved layouts can be matched again later.
+
+Saved layouts are applied with a Core Graphics display configuration transaction. DisplayFit uses session-level application by default, so a layout can be restored without permanently rewriting the user's macOS display arrangement.
+
+You can also choose the default position for the next new display before it is connected. Set `Next new display default position` in Arrangement or Settings, and DisplayFit will place the new display left, right, above, or below the main display without showing the prompt first.
+
+Some setups can still be ambiguous:
+
+- Multiple identical monitors may report no serial number
+- A dock, KVM, adapter, or DisplayLink-style driver can change display identity
+- macOS may adjust requested positions to remove gaps or overlaps
+
+## Build From Source
 
 ```sh
 ./script/build_and_run.sh --verify
 ```
 
-By default, the build script uses `Debug`, which includes `DIRECT_DISTRIBUTION` and the private `DisplayServices` backend.
+The script regenerates `DisplayFit.xcodeproj` from `project.yml`, builds the app with Xcode, installs it to `/Applications/DisplayFit.app` by default, and launches it for verification.
 
-For a Release build without installing or launching:
+Build without installing or launching:
 
 ```sh
-./script/build_and_run.sh --release --build-only
+./script/build_and_run.sh --build-only --no-install
 ```
 
-The script regenerates `FullBrightness.xcodeproj` from `project.yml`, builds the app with Xcode, and can install the app to `/Applications/Full Brightness.app` so macOS can discover its Control Center extension.
+Build Release:
 
-## Release
+```sh
+./script/build_and_run.sh --release --build-only --no-install
+```
 
-The public GitHub release tag uses the date-based version `2026.05.08.001`.
+Both Debug and Release include `DIRECT_DISTRIBUTION` and the runtime-loaded `DisplayServices` brightness backend. The main app uses `Sources/App/DisplayFitDirect.entitlements`; the Control Center extension keeps its sandbox and app-group entitlements.
 
-Apple bundle version fields use standard numeric forms:
+## Package
 
-- `CFBundleShortVersionString`: `2026.5.8`
-- `CFBundleVersion`: `20260508001`
-
-### Direct distribution package
-
-Use Developer ID distribution for the private-API build:
+Create a Developer ID release package:
 
 ```sh
 ./script/package_direct.sh
 ```
 
-The script requires a `Developer ID Application` certificate for public direct distribution. It archives `Release`, exports with `packaging/ExportOptions-DeveloperID.plist`, stages the app as `Full Brightness.app`, creates both DMG and ZIP artifacts, prints SHA-256 values, and verifies the exported signature. Set `NOTARYTOOL_PROFILE` to submit the app and DMG with `xcrun notarytool`, then staple both before the final artifacts are published.
+With notarization:
 
-For local artifact checks without a Developer ID certificate:
+```sh
+NOTARYTOOL_PROFILE=displayfit-notary ./script/package_direct.sh
+```
+
+For a local package check without a Developer ID certificate:
 
 ```sh
 ./script/package_direct.sh --local
 ```
 
-Suggested distribution order:
+Artifacts are written to `.build/dist/direct/`. The package script stages `DisplayFit.app`, creates DMG and ZIP artifacts, prints SHA-256 values, verifies the exported signature, and staples notarization tickets when `NOTARYTOOL_PROFILE` is set.
 
-1. GitHub Releases notarized DMG
-2. Homebrew cask in `Casks/full-brightness.rb`
-3. ZIP asset for automation or troubleshooting
-4. Sparkle later if automatic updates become necessary
+## Version
 
-Apple's Developer ID flow expects directly distributed apps to be Developer ID signed and notarized. Homebrew Cask expects a cask file with version, SHA-256, URL, metadata, and an `app` artifact.
+The current release uses:
+
+- GitHub release tag: `2026.05.08.001`
+- `CFBundleShortVersionString`: `2026.5.8`
+- `CFBundleVersion`: `20260508001`

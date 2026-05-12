@@ -73,11 +73,16 @@ struct DisplayDevice: Identifiable, Equatable, Sendable {
     let serialNumber: UInt32
     let isBuiltin: Bool
     let resolution: Resolution
+    let frame: DisplayFrame
     let brightness: Float?
     let brightnessBackend: BrightnessBackend
 
     var resolutionText: String {
         resolution.logicalText
+    }
+
+    var frameText: String {
+        "\(frame.sizeText) · \(frame.originText)"
     }
 
     var hiDPIText: String {

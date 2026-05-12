@@ -3,14 +3,14 @@ import Carbon.HIToolbox
 import SwiftUI
 
 enum ShortcutAction: String, CaseIterable, Identifiable {
-    case setFullBrightness
+    case setFullLevel
     case refreshDisplays
 
     var id: String { rawValue }
 
     var titleKey: String {
         switch self {
-        case .setFullBrightness:
+        case .setFullLevel:
             "settings.shortcut.set_full"
         case .refreshDisplays:
             "settings.shortcut.refresh"
@@ -19,7 +19,7 @@ enum ShortcutAction: String, CaseIterable, Identifiable {
 
     var systemImage: String {
         switch self {
-        case .setFullBrightness:
+        case .setFullLevel:
             "sun.max.fill"
         case .refreshDisplays:
             "arrow.clockwise"
@@ -28,7 +28,7 @@ enum ShortcutAction: String, CaseIterable, Identifiable {
 
     var defaultShortcut: AppKeyboardShortcut {
         switch self {
-        case .setFullBrightness:
+        case .setFullLevel:
             AppKeyboardShortcut(keyCode: UInt16(kVK_ANSI_B), key: "B", modifiers: [.command, .shift])
         case .refreshDisplays:
             AppKeyboardShortcut(keyCode: UInt16(kVK_ANSI_R), key: "R", modifiers: [.command])
