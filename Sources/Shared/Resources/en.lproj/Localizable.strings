@@ -76,6 +76,11 @@
 "arrangement.prompt_for_new_displays" = "Ask when new displays appear";
 "arrangement.default_new_display_position" = "Next new display default position";
 "arrangement.default_new_display_position.prompt" = "Ask on connect";
+"arrangement.default_new_display_offset.details" = "Fine tune position";
+"arrangement.default_new_display_offset.horizontal" = "Horizontal offset";
+"arrangement.default_new_display_offset.vertical" = "Vertical offset";
+"arrangement.default_new_display_offset.value_format" = "%d pt";
+"arrangement.default_new_display_offset.reset" = "Reset offset";
 "arrangement.rule.right" = "Place right";
 "arrangement.rule.left" = "Place left";
 "arrangement.rule.above" = "Place above";

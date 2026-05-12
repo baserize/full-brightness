@@ -50,6 +50,34 @@ struct DisplayFrame: Codable, Equatable, Sendable {
     func moved(toOriginX originX: Int, originY: Int) -> DisplayFrame {
         DisplayFrame(originX: originX, originY: originY, width: width, height: height)
     }
+
+    func offsetBy(horizontal: Int, vertical: Int) -> DisplayFrame {
+        DisplayFrame(originX: originX + horizontal, originY: originY + vertical, width: width, height: height)
+    }
+}
+
+struct DisplayPlacementOffset: Codable, Equatable, Sendable {
+    static let zero = DisplayPlacementOffset(horizontal: 0, vertical: 0)
+    static let range = -2_000...2_000
+
+    let horizontal: Int
+    let vertical: Int
+
+    init(horizontal: Int, vertical: Int) {
+        self.horizontal = Self.clamped(horizontal)
+        self.vertical = Self.clamped(vertical)
+    }
+
+    func updating(horizontal: Int? = nil, vertical: Int? = nil) -> DisplayPlacementOffset {
+        DisplayPlacementOffset(
+            horizontal: horizontal ?? self.horizontal,
+            vertical: vertical ?? self.vertical
+        )
+    }
+
+    private static func clamped(_ value: Int) -> Int {
+        min(max(value, range.lowerBound), range.upperBound)
+    }
 }
 
 struct DisplayFingerprint: Codable, Hashable, Sendable {

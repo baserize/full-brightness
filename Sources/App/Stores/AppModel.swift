@@ -54,29 +54,32 @@ final class AppModel {
         }
     }
 
-    var autoFitEnabled: Bool {
-        get { arrangementPreferences.autoFitEnabled }
-        set {
-            guard arrangementPreferences.autoFitEnabled != newValue else { return }
-            arrangementPreferences.autoFitEnabled = newValue
+    var autoFitEnabled = false {
+        didSet {
+            guard oldValue != autoFitEnabled else { return }
+            arrangementPreferences.autoFitEnabled = autoFitEnabled
 
-            if newValue {
+            if autoFitEnabled {
                 applyActiveDisplayLayout()
             }
         }
     }
 
-    var promptForNewDisplays: Bool {
-        get { arrangementPreferences.promptForNewDisplays }
-        set {
-            arrangementPreferences.promptForNewDisplays = newValue
+    var promptForNewDisplays = true {
+        didSet {
+            arrangementPreferences.promptForNewDisplays = promptForNewDisplays
         }
     }
 
     var defaultNewDisplayPlacementRule: DisplayPlacementRule? {
-        get { arrangementPreferences.defaultNewDisplayPlacementRule }
-        set {
-            arrangementPreferences.defaultNewDisplayPlacementRule = newValue
+        didSet {
+            arrangementPreferences.defaultNewDisplayPlacementRule = defaultNewDisplayPlacementRule
+        }
+    }
+
+    var defaultNewDisplayPlacementOffset = DisplayPlacementOffset.zero {
+        didSet {
+            arrangementPreferences.defaultNewDisplayPlacementOffset = defaultNewDisplayPlacementOffset
         }
     }
 
@@ -91,6 +94,10 @@ final class AppModel {
 
     init() {
         let shortcutPreferences = keyboardShortcutPreferences
+        autoFitEnabled = arrangementPreferences.autoFitEnabled
+        promptForNewDisplays = arrangementPreferences.promptForNewDisplays
+        defaultNewDisplayPlacementRule = arrangementPreferences.defaultNewDisplayPlacementRule
+        defaultNewDisplayPlacementOffset = arrangementPreferences.defaultNewDisplayPlacementOffset
         displayLayoutProfiles = arrangementPreferences.layoutProfiles
         if let savedProfileID = arrangementPreferences.activeProfileID,
            displayLayoutProfiles.contains(where: { $0.id == savedProfileID }) {
@@ -245,7 +252,7 @@ final class AppModel {
     func applyPendingDisplays(using rule: DisplayPlacementRule) {
         guard let pendingNewDisplayPrompt else { return }
 
-        applyNewDisplays(pendingNewDisplayPrompt.displays, using: rule)
+        applyNewDisplays(pendingNewDisplayPrompt.displays, using: rule, offset: .zero)
         self.pendingNewDisplayPrompt = nil
     }
 
@@ -358,7 +365,11 @@ final class AppModel {
 
         if !newDisplays.isEmpty {
             if let defaultNewDisplayPlacementRule {
-                applyNewDisplays(newDisplays, using: defaultNewDisplayPlacementRule)
+                applyNewDisplays(
+                    newDisplays,
+                    using: defaultNewDisplayPlacementRule,
+                    offset: defaultNewDisplayPlacementOffset
+                )
             } else if promptForNewDisplays {
                 pendingNewDisplayPrompt = NewDisplayPrompt(displays: newDisplays)
             } else {
@@ -376,12 +387,17 @@ final class AppModel {
         }
     }
 
-    private func applyNewDisplays(_ placements: [DisplayPlacement], using rule: DisplayPlacementRule) {
+    private func applyNewDisplays(
+        _ placements: [DisplayPlacement],
+        using rule: DisplayPlacementRule,
+        offset: DisplayPlacementOffset
+    ) {
         let targetIDs = Set(placements.map(\.id))
         let profile = arrangementController.makePlacementProfile(
             rule: rule,
             targetPlacementIDs: targetIDs,
-            displays: displays
+            displays: displays,
+            offset: offset
         )
 
         suppressArrangementHandlingUntil = Date().addingTimeInterval(3)

@@ -152,7 +152,7 @@ DisplayFit reads each connected display's bounds with Core Graphics and saves po
 
 Saved layouts are applied with a Core Graphics display configuration transaction. DisplayFit uses session-level application by default, so a layout can be restored without permanently rewriting the user's macOS display arrangement.
 
-You can also choose the default position for the next new display before it is connected. Set `Next new display default position` in Arrangement or Settings, and DisplayFit will place the new display left, right, above, or below the main display without showing the prompt first.
+You can also choose the default position for the next new display before it is connected. Set `Next new display default position` in Arrangement or Settings, and DisplayFit will place the new display left, right, above, or below the main display without showing the prompt first. For more exact desk layouts, `Fine tune position` adds horizontal and vertical offsets to that default.
 
 Some setups can still be ambiguous:
 

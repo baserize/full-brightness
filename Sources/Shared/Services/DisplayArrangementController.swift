@@ -160,7 +160,8 @@ struct DisplayArrangementController: Sendable {
     func makePlacementProfile(
         rule: DisplayPlacementRule,
         targetPlacementIDs: Set<String>,
-        displays: [DisplayDevice]
+        displays: [DisplayDevice],
+        offset: DisplayPlacementOffset = .zero
     ) -> DisplayLayoutProfile? {
         let snapshot = snapshot(displays: displays)
         guard let anchorPlacement = snapshot.mainPlacement else { return nil }
@@ -208,7 +209,8 @@ struct DisplayArrangementController: Sendable {
                 runningY = adjustedFrame.maxY
             }
 
-            adjustedPlacements.append(placement.moved(to: adjustedFrame))
+            let finalFrame = adjustedFrame.offsetBy(horizontal: offset.horizontal, vertical: offset.vertical)
+            adjustedPlacements.append(placement.moved(to: finalFrame))
         }
 
         return DisplayLayoutProfile(

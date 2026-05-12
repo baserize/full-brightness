@@ -76,6 +76,11 @@
 "arrangement.prompt_for_new_displays" = "새 모니터 발견 시 묻기";
 "arrangement.default_new_display_position" = "다음 새 모니터 기본 위치";
 "arrangement.default_new_display_position.prompt" = "연결 시 묻기";
+"arrangement.default_new_display_offset.details" = "세부 위치 조정";
+"arrangement.default_new_display_offset.horizontal" = "가로 보정";
+"arrangement.default_new_display_offset.vertical" = "세로 보정";
+"arrangement.default_new_display_offset.value_format" = "%d pt";
+"arrangement.default_new_display_offset.reset" = "보정 초기화";
 "arrangement.rule.right" = "오른쪽에 배치";
 "arrangement.rule.left" = "왼쪽에 배치";
 "arrangement.rule.above" = "위에 배치";
