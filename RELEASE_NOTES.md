@@ -10,6 +10,7 @@ DisplayFit expands the old Full Brightness idea beyond brightness. The app now f
 - Refined the layout preview so adjacent monitors stay visually separate.
 
 Thanks to @aloedawn (Dawn) at Apple Developer Academy @ POSTECH for the monitor arrangement idea.
+Thanks to @ryuhwagodong (Lawrence) for the idea to make the Full brightness target configurable instead of hardcoding it to 100%.
 
 ## Guides
 
