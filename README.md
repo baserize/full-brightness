@@ -198,16 +198,10 @@ Both Debug and Release include `DIRECT_DISTRIBUTION` and the runtime-loaded `Dis
 
 ## Package
 
-Create a Developer ID release package:
+Create a notarized Developer ID release package:
 
 ```sh
 ./script/package_direct.sh
-```
-
-With notarization:
-
-```sh
-NOTARYTOOL_PROFILE=displayfit-notary ./script/package_direct.sh
 ```
 
 For a local package check without a Developer ID certificate:
@@ -216,7 +210,7 @@ For a local package check without a Developer ID certificate:
 ./script/package_direct.sh --local
 ```
 
-Artifacts are written to `.build/dist/direct/`. The package script stages `DisplayFit.app`, creates DMG and ZIP artifacts, prints SHA-256 values, verifies the exported signature, and staples notarization tickets when `NOTARYTOOL_PROFILE` is set.
+Artifacts are written to `.build/dist/direct/`. Public release packaging requires the `displayfit-notary` notarytool profile by default. The package script stages `DisplayFit.app`, creates DMG and ZIP artifacts, submits the app and DMG to Apple notarization, staples the tickets, prints SHA-256 values, verifies the exported signature, and validates Gatekeeper acceptance.
 
 ## Version
 

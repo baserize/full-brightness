@@ -198,16 +198,10 @@ Debug와 Release 모두 `DIRECT_DISTRIBUTION`과 런타임 로딩 기반 `Displa
 
 ## 패키징
 
-Developer ID 릴리즈 패키지 생성:
+Notarization이 적용된 Developer ID 릴리즈 패키지 생성:
 
 ```sh
 ./script/package_direct.sh
-```
-
-Notarization 포함:
-
-```sh
-NOTARYTOOL_PROFILE=displayfit-notary ./script/package_direct.sh
 ```
 
 Developer ID 인증서 없이 로컬 패키지 확인:
@@ -216,7 +210,7 @@ Developer ID 인증서 없이 로컬 패키지 확인:
 ./script/package_direct.sh --local
 ```
 
-Artifact는 `.build/dist/direct/`에 생성됩니다. 패키징 스크립트는 `DisplayFit.app`을 staging하고, DMG와 ZIP artifact를 만들고, SHA-256 값을 출력하고, export된 서명을 검증하며, `NOTARYTOOL_PROFILE`이 설정된 경우 notarization ticket을 staple합니다.
+Artifact는 `.build/dist/direct/`에 생성됩니다. 공개 릴리즈 패키징은 기본적으로 `displayfit-notary` notarytool profile을 요구합니다. 패키징 스크립트는 `DisplayFit.app`을 staging하고, DMG와 ZIP artifact를 만들고, 앱과 DMG를 Apple notarization에 제출하고, ticket을 staple하고, SHA-256 값을 출력하고, export된 서명과 Gatekeeper 승인을 검증합니다.
 
 ## 버전
 

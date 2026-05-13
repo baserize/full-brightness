@@ -15,6 +15,7 @@ APP_PATH="$DIST_PATH/$APP_DISPLAY_NAME.app"
 DMG_STAGING_PATH="$DIST_PATH/dmg-root"
 PACKAGE_MODE="developer-id"
 DEVELOPER_ID_APPLICATION=""
+NOTARY_PROFILE="${NOTARYTOOL_PROFILE:-displayfit-notary}"
 
 for arg in "$@"; do
   case "$arg" in
@@ -43,8 +44,6 @@ if ! command -v xcodegen >/dev/null 2>&1; then
 fi
 
 xcodegen generate --spec project.yml --quiet
-rm -rf "$ARCHIVE_PATH" "$EXPORT_PATH" "$DIST_PATH"
-mkdir -p "$DIST_PATH"
 
 if [[ "$PACKAGE_MODE" == "developer-id" ]]; then
   DEVELOPER_ID_APPLICATION="$(security find-identity -p codesigning -v | awk -F '"' '/Developer ID Application/ { print $2; exit }')"
@@ -54,6 +53,19 @@ if [[ "$PACKAGE_MODE" == "developer-id" ]]; then
     exit 1
   fi
 
+  if ! xcrun notarytool history --keychain-profile "$NOTARY_PROFILE" >/dev/null 2>&1; then
+    echo "Apple notarization credentials are required for public direct distribution." >&2
+    echo "Store credentials first:" >&2
+    echo "  xcrun notarytool store-credentials $NOTARY_PROFILE --apple-id <apple-id> --team-id 27LDR382XX --password <app-specific-password>" >&2
+    echo "Use --local only for private local artifact checks; never for public releases." >&2
+    exit 1
+  fi
+fi
+
+rm -rf "$ARCHIVE_PATH" "$EXPORT_PATH" "$DIST_PATH"
+mkdir -p "$DIST_PATH"
+
+if [[ "$PACKAGE_MODE" == "developer-id" ]]; then
   xcodebuild \
     -project "$PROJECT_NAME.xcodeproj" \
     -scheme "$SCHEME" \
@@ -115,28 +127,26 @@ create_dmg() {
   fi
 }
 
-if [[ "$PACKAGE_MODE" == "developer-id" && -n "${NOTARYTOOL_PROFILE:-}" ]]; then
+if [[ "$PACKAGE_MODE" == "developer-id" ]]; then
   PRE_NOTARY_ZIP="$DIST_PATH/pre-notary-$ZIP_ARTIFACT_NAME"
   ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$PRE_NOTARY_ZIP"
-  xcrun notarytool submit "$PRE_NOTARY_ZIP" --keychain-profile "$NOTARYTOOL_PROFILE" --wait
+  xcrun notarytool submit "$PRE_NOTARY_ZIP" --keychain-profile "$NOTARY_PROFILE" --wait
   xcrun stapler staple "$APP_PATH"
   rm -f "$PRE_NOTARY_ZIP"
-elif [[ -n "${NOTARYTOOL_PROFILE:-}" ]]; then
-  echo "Ignoring NOTARYTOOL_PROFILE because --local packages are not Developer ID exports." >&2
 fi
 
 ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$ZIP_PATH"
 create_dmg
 
-if [[ "$PACKAGE_MODE" == "developer-id" && -n "${NOTARYTOOL_PROFILE:-}" ]]; then
-  xcrun notarytool submit "$DMG_PATH" --keychain-profile "$NOTARYTOOL_PROFILE" --wait
+if [[ "$PACKAGE_MODE" == "developer-id" ]]; then
+  xcrun notarytool submit "$DMG_PATH" --keychain-profile "$NOTARY_PROFILE" --wait
   xcrun stapler staple "$DMG_PATH"
 fi
 
 shasum -a 256 "$ZIP_PATH" "$DMG_PATH"
 
 codesign --verify --deep --strict --verbose=2 "$APP_PATH"
-if [[ "$PACKAGE_MODE" == "developer-id" && -n "${NOTARYTOOL_PROFILE:-}" ]]; then
+if [[ "$PACKAGE_MODE" == "developer-id" ]]; then
   xcrun stapler validate "$APP_PATH"
   xcrun stapler validate "$DMG_PATH"
   spctl -a -vv --type execute "$APP_PATH"
