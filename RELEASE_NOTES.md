@@ -1,46 +1,29 @@
 # DisplayFit 2026.05.13.001
 
-## What Changed
+DisplayFit expands the old Full Brightness idea beyond brightness. The app now fits both display brightness and monitor arrangement, so the name changed to reflect the broader setup workflow.
 
-- Added display layout profiles keyed by connected device names and display fingerprints.
-- Added Auto Fit on connect for known monitor combinations.
-- Added new-display placement defaults, including optional fine tuning offsets for future monitors.
-- Added a new-display prompt that can remember a placement rule for a specific device.
-- Changed layout behavior so manual arrangement changes while the app is open show a warning instead of immediately snapping back. Saved layouts are applied on display connection or by pressing `Apply Saved Fit`.
-- Refined the arrangement preview so adjacent monitors are shown as separate tiles without distorting the real saved coordinates.
-- Updated DisplayFit branding, bundle identifiers, menu labels, README, Homebrew cask, and installation guidance.
+## Highlights
+
+- Added device-based monitor layout profiles and Auto Fit on connect.
+- Added default placement for future displays, with optional fine tuning.
+- Added warnings when the current arrangement differs from the saved fit instead of snapping back while the app is already open.
+- Refined the layout preview so adjacent monitors stay visually separate.
+
+Thanks to Dawn at Apple Developer Academy @ POSTECH for the monitor arrangement idea.
+
+## Guides
+
+- English: [README](https://github.com/baserize/displayfit/blob/main/README.md), [Install Guide](https://github.com/baserize/displayfit/blob/main/INSTALL.md)
+- 한국어: [README](https://github.com/baserize/displayfit/blob/main/README.ko.md), [설치 설명서](https://github.com/baserize/displayfit/blob/main/INSTALL.ko.md)
 
 ## Install
-
-Recommended install path:
 
 ```sh
 brew tap baserize/displayfit https://github.com/baserize/displayfit
 brew install --cask displayfit
 ```
 
-If Gatekeeper blocks first launch because the build is not notarized, verify the checksum and then run:
-
-```sh
-xattr -dr com.apple.quarantine /Applications/DisplayFit.app
-```
-
-DMG install:
-
-1. Download `DisplayFit-2026.05.13.001.dmg` from this release.
-2. Open the DMG.
-3. Drag `DisplayFit.app` to `Applications`.
-
-## Documentation
-
-- README: https://github.com/baserize/displayfit/blob/main/README.md
-- 한국어 README: https://github.com/baserize/displayfit/blob/main/README.ko.md
-- Install guide: https://github.com/baserize/displayfit/blob/main/INSTALL.md
-- 한국어 설치 설명서: https://github.com/baserize/displayfit/blob/main/INSTALL.ko.md
-
-## macOS Security Notes
-
-DisplayFit is Developer ID signed for direct distribution. This release may require the standard macOS first-launch confirmation if notarization credentials are not available during packaging. See the install guide before removing quarantine flags manually.
+DMG and ZIP files are attached below. If Gatekeeper blocks first launch because this build is not notarized, verify the checksum and follow the install guide.
 
 ## Checksums
 
