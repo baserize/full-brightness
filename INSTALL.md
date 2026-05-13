@@ -33,7 +33,7 @@ shasum -a 256 ~/Downloads/DisplayFit-2026.05.13.001.dmg
 
 ### macOS Security Notes
 
-DisplayFit is Developer ID signed for direct distribution. If a release is not notarized yet, macOS Gatekeeper may ask for an extra confirmation the first time you open it.
+DisplayFit is Developer ID signed, notarized by Apple, stapled, and accepted by Gatekeeper for direct distribution. macOS may still ask for an extra confirmation the first time you open an app downloaded outside the App Store.
 
 Use the standard macOS path first:
 

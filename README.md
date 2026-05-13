@@ -96,7 +96,7 @@ brew tap baserize/displayfit https://github.com/baserize/displayfit
 brew install --cask displayfit
 ```
 
-If Gatekeeper blocks first launch for an unnotarized build, follow [INSTALL.md](INSTALL.md) before removing quarantine manually.
+If macOS asks for extra first-launch confirmation, follow [INSTALL.md](INSTALL.md).
 
 Or install directly from the cask URL:
 

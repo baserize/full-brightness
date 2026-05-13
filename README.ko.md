@@ -96,7 +96,7 @@ brew tap baserize/displayfit https://github.com/baserize/displayfit
 brew install --cask displayfit
 ```
 
-notarization이 없는 빌드라 Gatekeeper가 첫 실행을 막는다면 quarantine을 직접 제거하기 전에 [INSTALL.ko.md](INSTALL.ko.md)를 확인하세요.
+macOS가 첫 실행 때 추가 확인을 요구하면 [INSTALL.ko.md](INSTALL.ko.md)를 확인하세요.
 
 cask URL로 바로 설치:
 

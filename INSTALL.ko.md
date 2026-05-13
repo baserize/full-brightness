@@ -33,7 +33,7 @@ shasum -a 256 ~/Downloads/DisplayFit-2026.05.13.001.dmg
 
 ### macOS 보안 안내
 
-DisplayFit은 직접 배포를 위해 Developer ID로 서명되어 있습니다. 릴리즈가 아직 notarization을 거치지 않은 경우, macOS Gatekeeper가 첫 실행 때 추가 확인을 요구할 수 있습니다.
+DisplayFit은 직접 배포를 위해 Developer ID로 서명되어 있고, Apple notarization과 stapling을 거쳤으며, Gatekeeper 승인을 확인했습니다. 그래도 App Store 밖에서 내려받은 앱은 macOS가 첫 실행 때 추가 확인을 요구할 수 있습니다.
 
 먼저 macOS 기본 경로로 여세요.
 

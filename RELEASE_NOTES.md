@@ -23,11 +23,11 @@ brew tap baserize/displayfit https://github.com/baserize/displayfit
 brew install --cask displayfit
 ```
 
-DMG and ZIP files are attached below. If Gatekeeper blocks first launch because this build is not notarized, verify the checksum and follow the install guide.
+DMG and ZIP files are attached below. The DMG is Developer ID signed, notarized by Apple, stapled, and accepted by Gatekeeper.
 
 ## Checksums
 
 ```text
-1ada542a4a086a438eb3b7cc5ad925b7df0099d420c731e7e5d0966b79f56e54  DisplayFit-2026.05.13.001.dmg
-5a0587f9fc62c86e81d7e61e01036a75b25804cacb3f551bcb6494e0d57360f2  DisplayFit-2026.05.13.001.zip
+52b4d27c623b85e44b1fcb36f904f49908eecd02e8f6394723695017a6b3ff98  DisplayFit-2026.05.13.001.dmg
+0880428b0fe8cf58a6a37b427c362e2df8ae7aa1db10ffde9df9f40186458ecc  DisplayFit-2026.05.13.001.zip
 ```

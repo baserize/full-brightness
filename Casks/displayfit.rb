@@ -1,6 +1,6 @@
 cask "displayfit" do
   version "2026.05.13.001"
-  sha256 "1ada542a4a086a438eb3b7cc5ad925b7df0099d420c731e7e5d0966b79f56e54"
+  sha256 "52b4d27c623b85e44b1fcb36f904f49908eecd02e8f6394723695017a6b3ff98"
 
   url "https://github.com/baserize/displayfit/releases/download/#{version}/DisplayFit-#{version}.dmg"
   name "DisplayFit"
