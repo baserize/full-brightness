@@ -9,7 +9,7 @@ DisplayFit expands the old Full Brightness idea beyond brightness. The app now f
 - Added warnings when the current arrangement differs from the saved fit instead of snapping back while the app is already open.
 - Refined the layout preview so adjacent monitors stay visually separate.
 
-Thanks to Dawn at Apple Developer Academy @ POSTECH for the monitor arrangement idea.
+Thanks to @aloedawn (Dawn) at Apple Developer Academy @ POSTECH for the monitor arrangement idea.
 
 ## Guides
 
