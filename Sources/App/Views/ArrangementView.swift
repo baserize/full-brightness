@@ -61,6 +61,8 @@ private struct ArrangementActionPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+            CurrentDisplayFitStatus(model: model)
+
             Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 16) {
                 GridRow {
                     Button {
@@ -89,14 +91,6 @@ private struct ArrangementActionPanel: View {
             }
             .toggleStyle(.switch)
 
-            Toggle(isOn: $model.promptForNewDisplays) {
-                Label("arrangement.prompt_for_new_displays", systemImage: "questionmark.bubble")
-            }
-            .toggleStyle(.switch)
-            .disabled(model.defaultNewDisplayPlacementRule != nil)
-
-            NewDisplayDefaultPlacementPicker(model: model)
-
             if let result = model.lastArrangementResult {
                 Label(result.summaryText, systemImage: result.isWarning ? "exclamationmark.triangle" : "checkmark.circle")
                     .font(.callout)
@@ -105,6 +99,53 @@ private struct ArrangementActionPanel: View {
         }
         .padding(16)
         .glassEffect(.regular, in: .rect(cornerRadius: 14))
+    }
+}
+
+private struct CurrentDisplayFitStatus: View {
+    let model: AppModel
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: statusSystemImage)
+                .font(.title3)
+                .foregroundStyle(statusColor)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(model.currentDisplaySetName)
+                    .font(.headline)
+                    .lineLimit(2)
+
+                Text(statusText)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private var statusSystemImage: String {
+        if model.isCurrentDisplayLayoutDifferentFromSaved {
+            return "exclamationmark.triangle.fill"
+        }
+
+        return model.isCurrentDisplayLayoutSaved ? "checkmark.circle.fill" : "display.badge.plus"
+    }
+
+    private var statusColor: Color {
+        if model.isCurrentDisplayLayoutDifferentFromSaved {
+            return .orange
+        }
+
+        return model.isCurrentDisplayLayoutSaved ? .green : .secondary
+    }
+
+    private var statusText: String {
+        if model.isCurrentDisplayLayoutDifferentFromSaved {
+            return L10n.string("arrangement.current_fit.changed")
+        }
+
+        return L10n.string(model.isCurrentDisplayLayoutSaved ? "arrangement.current_fit.saved" : "arrangement.current_fit.unsaved")
     }
 }
 
@@ -129,10 +170,12 @@ private struct DisplayArrangementCanvas: View {
                     .frame(maxWidth: .infinity, minHeight: 280)
             } else {
                 GeometryReader { proxy in
+                    let rectsByPlacementID = displayRects(in: proxy.size)
+
                     GlassEffectContainer(spacing: 18) {
                         ZStack {
                             ForEach(snapshot.placements) { placement in
-                                let rect = displayRect(for: placement, in: proxy.size)
+                                let rect = rectsByPlacementID[placement.id] ?? .zero
 
                                 DisplayArrangementTile(placement: placement)
                                     .frame(width: rect.width, height: rect.height)
@@ -148,28 +191,52 @@ private struct DisplayArrangementCanvas: View {
         }
     }
 
-    private func displayRect(for placement: DisplayPlacement, in size: CGSize) -> CGRect {
-        let bounds = contentBounds
+    private func displayRects(in size: CGSize) -> [String: CGRect] {
+        let frames = snapshot.placements.map(\.frame)
+        let bounds = contentBounds(for: frames)
         let horizontalPadding: CGFloat = 28
         let verticalPadding: CGFloat = 28
+        let visualGap: CGFloat = 10
         let availableWidth = max(size.width - horizontalPadding * 2, 1)
         let availableHeight = max(size.height - verticalPadding * 2, 1)
-        let scale = min(availableWidth / CGFloat(bounds.width), availableHeight / CGFloat(bounds.height))
-        let scaledContentWidth = CGFloat(bounds.width) * scale
-        let scaledContentHeight = CGFloat(bounds.height) * scale
+        let maxHorizontalGapRank = frames.map { horizontalGapRank(for: $0, in: frames) }.max() ?? 0
+        let maxVerticalGapRank = frames.map { verticalGapRank(for: $0, in: frames) }.max() ?? 0
+        let totalHorizontalGap = CGFloat(maxHorizontalGapRank) * visualGap
+        let totalVerticalGap = CGFloat(maxVerticalGapRank) * visualGap
+        let scale = min(
+            max(availableWidth - totalHorizontalGap, 1) / CGFloat(bounds.width),
+            max(availableHeight - totalVerticalGap, 1) / CGFloat(bounds.height)
+        )
+        let scaledContentWidth = CGFloat(bounds.width) * scale + totalHorizontalGap
+        let scaledContentHeight = CGFloat(bounds.height) * scale + totalVerticalGap
         let originX = horizontalPadding + (availableWidth - scaledContentWidth) / 2
         let originY = verticalPadding + (availableHeight - scaledContentHeight) / 2
 
-        return CGRect(
-            x: originX + CGFloat(placement.frame.originX - bounds.originX) * scale,
-            y: originY + CGFloat(placement.frame.originY - bounds.originY) * scale,
-            width: max(CGFloat(placement.frame.width) * scale, 92),
-            height: max(CGFloat(placement.frame.height) * scale, 58)
-        )
+        var rectsByPlacementID: [String: CGRect] = [:]
+
+        for placement in snapshot.placements {
+            let horizontalGap = CGFloat(horizontalGapRank(for: placement.frame, in: frames)) * visualGap
+            let verticalGap = CGFloat(verticalGapRank(for: placement.frame, in: frames)) * visualGap
+            rectsByPlacementID[placement.id] = CGRect(
+                x: originX + CGFloat(placement.frame.originX - bounds.originX) * scale + horizontalGap,
+                y: originY + CGFloat(placement.frame.originY - bounds.originY) * scale + verticalGap,
+                width: max(CGFloat(placement.frame.width) * scale, 92),
+                height: max(CGFloat(placement.frame.height) * scale, 58)
+            )
+        }
+
+        return rectsByPlacementID
     }
 
-    private var contentBounds: DisplayFrame {
-        let frames = snapshot.placements.map(\.frame)
+    private func horizontalGapRank(for frame: DisplayFrame, in frames: [DisplayFrame]) -> Int {
+        Set(frames.map(\.maxX)).filter { $0 <= frame.originX }.count
+    }
+
+    private func verticalGapRank(for frame: DisplayFrame, in frames: [DisplayFrame]) -> Int {
+        Set(frames.map(\.maxY)).filter { $0 <= frame.originY }.count
+    }
+
+    private func contentBounds(for frames: [DisplayFrame]) -> DisplayFrame {
         let minX = frames.map(\.originX).min() ?? 0
         let minY = frames.map(\.originY).min() ?? 0
         let maxX = frames.map(\.maxX).max() ?? 1
@@ -213,49 +280,54 @@ private struct DisplayArrangementTile: View {
 
 private struct SavedLayoutProfilePanel: View {
     @Bindable var model: AppModel
+    @State private var showsProfileManagement = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("arrangement.saved_profiles")
-                    .font(.title3.weight(.semibold))
+        DisclosureGroup(isExpanded: $showsProfileManagement) {
+            VStack(alignment: .leading, spacing: 12) {
+                Picker("arrangement.profile_picker", selection: selectedProfileBinding) {
+                    Text("arrangement.profile.none")
+                        .tag(Optional<UUID>.none)
 
-                Spacer()
-
-                Button {
-                    model.deleteSelectedDisplayLayoutProfile()
-                } label: {
-                    Label("arrangement.action.delete", systemImage: "trash")
+                    ForEach(model.displayLayoutProfiles) { profile in
+                        Text(profile.name)
+                            .tag(Optional(profile.id))
+                    }
                 }
-                .labelStyle(.iconOnly)
-                .buttonStyle(.borderless)
-                .disabled(model.activeDisplayLayoutProfile == nil)
-                .help("arrangement.action.delete")
+
+                if let profile = model.activeDisplayLayoutProfile {
+                    LabeledContent("arrangement.profile.devices") {
+                        Text(profile.deviceNamesText)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.trailing)
+                    }
+
+                    LabeledContent("arrangement.profile.display_count") {
+                        Text("\(profile.displayCount)")
+                            .monospacedDigit()
+                    }
+
+                    LabeledContent("arrangement.profile.updated") {
+                        Text(profile.updatedAt.formatted(date: .abbreviated, time: .shortened))
+                    }
+
+                    Button(role: .destructive) {
+                        model.deleteSelectedDisplayLayoutProfile()
+                    } label: {
+                        Label("arrangement.action.delete", systemImage: "trash")
+                    }
+                    .buttonStyle(.borderless)
+                } else {
+                    ContentUnavailableView("arrangement.profile.empty", systemImage: "rectangle.3.group")
+                        .frame(maxWidth: .infinity, minHeight: 110)
+                }
             }
-
-            Picker("arrangement.profile_picker", selection: selectedProfileBinding) {
-                Text("arrangement.profile.none")
-                    .tag(Optional<UUID>.none)
-
-                ForEach(model.displayLayoutProfiles) { profile in
-                    Text(profile.name)
-                        .tag(Optional(profile.id))
-                }
-            }
-
-            if let profile = model.activeDisplayLayoutProfile {
-                LabeledContent("arrangement.profile.display_count") {
-                    Text("\(profile.displayCount)")
-                        .monospacedDigit()
-                }
-
-                LabeledContent("arrangement.profile.updated") {
-                    Text(profile.updatedAt.formatted(date: .abbreviated, time: .shortened))
-                }
-            } else {
-                ContentUnavailableView("arrangement.profile.empty", systemImage: "rectangle.3.group")
-                    .frame(maxWidth: .infinity, minHeight: 140)
-            }
+            .padding(.top, 8)
+        } label: {
+            Label(
+                L10n.string("arrangement.manage_saved_profiles_format", model.displayLayoutProfiles.count),
+                systemImage: "rectangle.3.group"
+            )
         }
     }
 

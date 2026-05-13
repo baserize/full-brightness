@@ -4,7 +4,7 @@
 
 DisplayFit은 연결된 Mac 디스플레이를 내가 정한 밝기와 책상 배치로 되돌려 주는 macOS 메뉴 막대 유틸리티입니다. 메인 윈도우, 메뉴 막대, 제어 센터, 단축어, Siri, Spotlight에서 실행할 수 있습니다.
 
-현재 릴리즈: [`2026.05.08.001`](https://github.com/baserize/displayfit/releases/tag/2026.05.08.001)
+현재 릴리즈: [`2026.05.13.001`](https://github.com/baserize/displayfit/releases/tag/2026.05.13.001)
 
 ## 만든 이유
 
@@ -22,13 +22,19 @@ DisplayFit은 공용 데스크처럼 모니터 밝기와 배치가 매번 다른
   자동 모드를 켜면 새로 연결된 지원 디스플레이를 Full 기준으로 자동 설정합니다.
 
 - **모니터 배치 Fit 저장**
-  현재 모니터 위치를 DisplayFit 프로필로 저장하고 나중에 다시 적용할 수 있습니다.
+  현재 모니터 조합과 위치를 저장하고 나중에 다시 적용할 수 있습니다.
 
 - **연결 시 자동 Fit**
-  저장된 배치와 일치하는 모니터가 연결되면 해당 배치를 자동 적용할 수 있습니다.
+  같은 모니터 조합이 연결되면 해당 배치를 자동 적용할 수 있습니다.
 
 - **새 모니터 감지 팝업**
   처음 보는 모니터가 나타나면 현재 배치를 저장하거나, 저장된 Fit을 적용하거나, 주 모니터의 왼쪽/오른쪽/위/아래에 배치할 수 있습니다.
+
+- **아직 연결하지 않은 모니터 기본 위치**
+  다음에 연결될 새 모니터의 기본 위치를 미리 정할 수 있습니다. 더 정확한 책상 배치가 필요하면 가로/세로 보정값으로 세부 조정할 수 있습니다.
+
+- **저장된 배치와 다른 상태 경고**
+  앱이 켜진 상태에서 사용자가 직접 모니터 배치를 바꾸면 즉시 되돌리지 않고, 현재 배치가 저장된 Fit과 다르다는 경고만 보여 줍니다. 자동 Fit은 모니터 연결 이벤트 때 실행됩니다.
 
 - **디스플레이 지원 상태 표시**
   어떤 디스플레이가 밝기 조절 가능한지, 어떤 디스플레이가 읽기 전용이거나 지원되지 않는지 확인할 수 있습니다.
@@ -69,17 +75,17 @@ DisplayFit은 공용 데스크처럼 모니터 밝기와 배치가 매번 다른
 
 ### DMG, 권장
 
-[최신 릴리즈 페이지](https://github.com/baserize/displayfit/releases/latest)에서 notarize된 DMG를 내려받아 열고, 앱을 `Applications`로 드래그합니다.
+[최신 릴리즈 페이지](https://github.com/baserize/displayfit/releases/latest)에서 DMG를 내려받아 열고, 앱을 `Applications`로 드래그합니다.
 
 직접 다운로드:
 
 ```sh
-curl -L -o DisplayFit-2026.05.08.001.dmg \
-  https://github.com/baserize/displayfit/releases/download/2026.05.08.001/DisplayFit-2026.05.08.001.dmg
-open DisplayFit-2026.05.08.001.dmg
+curl -L -o DisplayFit-2026.05.13.001.dmg \
+  https://github.com/baserize/displayfit/releases/download/2026.05.13.001/DisplayFit-2026.05.13.001.dmg
+open DisplayFit-2026.05.13.001.dmg
 ```
 
-DMG와 앱은 직접 배포를 위해 Developer ID로 서명되어 있고 Apple notarization을 통과했습니다. ZIP asset도 자동화와 문제 해결용으로 함께 발행하지만, 기본 설치 경로는 DMG입니다.
+기본 설치 경로는 DMG입니다. Homebrew, DMG 검증, macOS Gatekeeper 안내는 [INSTALL.ko.md](INSTALL.ko.md)를 확인하세요. ZIP asset도 자동화와 문제 해결용으로 함께 발행합니다.
 
 ### Homebrew
 
@@ -89,6 +95,8 @@ repo cask tap으로 설치:
 brew tap baserize/displayfit https://github.com/baserize/displayfit
 brew install --cask displayfit
 ```
+
+notarization이 없는 빌드라 Gatekeeper가 첫 실행을 막는다면 quarantine을 직접 제거하기 전에 [INSTALL.ko.md](INSTALL.ko.md)를 확인하세요.
 
 cask URL로 바로 설치:
 
@@ -152,7 +160,13 @@ DisplayFit은 Core Graphics로 연결된 각 디스플레이의 bounds를 읽고
 
 저장된 배치는 Core Graphics display configuration transaction으로 적용합니다. 기본 적용 범위는 현재 로그인 세션이므로, 사용자의 macOS 디스플레이 배치를 영구적으로 덮어쓰지 않고도 복구할 수 있습니다.
 
-아직 연결하지 않은 다음 새 모니터도 기본 위치를 미리 정할 수 있습니다. 배치 화면이나 설정에서 `다음 새 모니터 기본 위치`를 선택하면, 새 모니터가 감지될 때 팝업 없이 주 모니터의 왼쪽, 오른쪽, 위, 아래 중 지정한 위치로 먼저 맞춥니다. 더 정확한 책상 배치가 필요하면 `세부 위치 조정`에서 가로/세로 보정값을 추가할 수 있습니다.
+현재 배치를 저장하면 연결된 기기 이름과 fingerprint 조합을 기준으로 기기별 Fit이 만들어집니다. 같은 모니터 조합이 다시 연결되면 DisplayFit이 해당 프로필을 자동으로 선택하고, `연결 시 자동 Fit`이 켜져 있으면 모니터 연결 이벤트 때 그 기기 조합에 맞는 저장 배치를 적용합니다.
+
+아직 연결하지 않은 다음 새 모니터도 기본 위치를 미리 정할 수 있습니다. 설정의 `새 모니터 기본 배치`에서 주 모니터의 왼쪽, 오른쪽, 위, 아래 중 하나를 고르면 새 모니터가 감지될 때 팝업 없이 먼저 맞춥니다. 더 정확한 책상 배치가 필요하면 접혀 있는 `세부 위치 조정`에서 가로/세로 보정값을 추가할 수 있습니다.
+
+처음 보는 외장 모니터는 새 모니터 감지 팝업에서 위치를 고를 수 있습니다. `이 기기 위치 기억`을 켠 채 위치를 고르면, 전체 배치를 따로 저장하지 않아도 다음 연결 때 같은 위치 규칙을 다시 사용합니다.
+
+앱이 켜진 상태에서 사용자가 직접 모니터 배치를 바꾸면 DisplayFit은 즉시 저장된 배치로 되돌리지 않습니다. 대신 현재 배치가 저장된 Fit과 다르다는 경고를 보여 주고, 다음 모니터 연결 이벤트나 사용자의 `저장된 Fit 적용` 명령을 기다립니다.
 
 일부 환경은 여전히 모호할 수 있습니다:
 
@@ -208,6 +222,6 @@ Artifact는 `.build/dist/direct/`에 생성됩니다. 패키징 스크립트는 
 
 현재 릴리즈는 다음 버전을 사용합니다:
 
-- GitHub 릴리즈 태그: `2026.05.08.001`
-- `CFBundleShortVersionString`: `2026.5.8`
-- `CFBundleVersion`: `20260508001`
+- GitHub 릴리즈 태그: `2026.05.13.001`
+- `CFBundleShortVersionString`: `2026.5.13`
+- `CFBundleVersion`: `20260513001`

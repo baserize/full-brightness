@@ -6,6 +6,7 @@ struct DisplayArrangementPreferences: Sendable {
         static let promptForNewDisplays = "displayArrangement.promptForNewDisplays"
         static let defaultNewDisplayPlacementRule = "displayArrangement.defaultNewDisplayPlacementRule"
         static let defaultNewDisplayPlacementOffset = "displayArrangement.defaultNewDisplayPlacementOffset"
+        static let displayPlacementPreferences = "displayArrangement.displayPlacementPreferences"
         static let layoutProfiles = "displayArrangement.layoutProfiles"
         static let activeProfileID = "displayArrangement.activeProfileID"
         static let knownDisplayFingerprints = "displayArrangement.knownDisplayFingerprints"
@@ -61,6 +62,17 @@ struct DisplayArrangementPreferences: Sendable {
         nonmutating set {
             guard let data = try? JSONEncoder().encode(newValue) else { return }
             defaults.set(data, forKey: Key.defaultNewDisplayPlacementOffset)
+        }
+    }
+
+    var displayPlacementPreferences: [DisplayPlacementPreference] {
+        get {
+            guard let data = defaults.data(forKey: Key.displayPlacementPreferences) else { return [] }
+            return (try? JSONDecoder().decode([DisplayPlacementPreference].self, from: data)) ?? []
+        }
+        nonmutating set {
+            guard let data = try? JSONEncoder().encode(newValue) else { return }
+            defaults.set(data, forKey: Key.displayPlacementPreferences)
         }
     }
 

@@ -15,6 +15,8 @@
 "settings.section.brightness" = "Full 밝기";
 "settings.full_level" = "Full 기준 밝기";
 "settings.section.arrangement" = "모니터 배치";
+"settings.arrangement.new_display_defaults" = "새 모니터 기본 배치";
+"settings.arrangement.new_display_defaults.help" = "보통은 연결 시 묻기로 두는 것이 가장 안전합니다. 자주 쓰는 책상 배치가 확실할 때만 기본 위치를 정하세요.";
 "settings.section.general" = "일반";
 "settings.launch_at_login" = "로그인 시 실행";
 "settings.launch_at_login.requires_approval" = "시스템 설정에서 승인이 필요합니다";
@@ -64,9 +66,16 @@
 "arrangement.profile.none" = "저장된 Fit 없음";
 "arrangement.profile.empty" = "저장된 모니터 Fit 없음";
 "arrangement.profile.display_count" = "모니터";
+"arrangement.profile.devices" = "기기";
 "arrangement.profile.updated" = "수정됨";
 "arrangement.profile.default_name_format" = "DisplayFit 배치 (%d개 모니터)";
+"arrangement.profile.device_name_format" = "%@ 배치";
 "arrangement.profile.temporary_fit" = "임시 DisplayFit";
+"arrangement.manage_saved_profiles_format" = "저장된 배치 관리 (%d)";
+"arrangement.current_fit.empty" = "연결된 모니터 없음";
+"arrangement.current_fit.saved" = "이 모니터 조합은 저장되어 있습니다.";
+"arrangement.current_fit.unsaved" = "이 모니터 조합은 아직 저장되지 않았습니다.";
+"arrangement.current_fit.changed" = "저장된 배치와 현재 배치가 다릅니다. 자동 Fit은 다음 모니터 연결 때 적용됩니다.";
 "arrangement.action.save" = "저장";
 "arrangement.action.apply" = "적용";
 "arrangement.action.save_current" = "현재 배치 저장";
@@ -95,6 +104,7 @@
 
 "new_display.title" = "새 모니터 감지";
 "new_display.subtitle_format" = "%@은 아직 저장된 DisplayFit 배치에 없습니다.";
+"new_display.action.remember_position" = "이 기기 위치 기억";
 "new_display.action.not_now" = "나중에";
 "new_display.action.save_current" = "현재 저장";
 "new_display.action.apply_saved" = "저장된 Fit 적용";

@@ -163,53 +163,68 @@ struct DisplayArrangementController: Sendable {
         displays: [DisplayDevice],
         offset: DisplayPlacementOffset = .zero
     ) -> DisplayLayoutProfile? {
+        let instructionsByPlacementID = Dictionary(
+            uniqueKeysWithValues: targetPlacementIDs.map { placementID in
+                (placementID, DisplayPlacementInstruction(rule: rule, offset: offset))
+            }
+        )
+
+        return makePlacementProfile(instructionsByPlacementID: instructionsByPlacementID, displays: displays)
+    }
+
+    func makePlacementProfile(
+        instructionsByPlacementID: [String: DisplayPlacementInstruction],
+        displays: [DisplayDevice]
+    ) -> DisplayLayoutProfile? {
         let snapshot = snapshot(displays: displays)
         guard let anchorPlacement = snapshot.mainPlacement else { return nil }
+        guard !instructionsByPlacementID.isEmpty else { return nil }
 
-        var runningX = anchorPlacement.frame.originX
-        var runningY = anchorPlacement.frame.originY
+        var runningRightX = anchorPlacement.frame.maxX
+        var runningLeftX = anchorPlacement.frame.originX
+        var runningAboveY = anchorPlacement.frame.originY
+        var runningBelowY = anchorPlacement.frame.maxY
         var adjustedPlacements: [DisplayPlacement] = []
 
         for placement in snapshot.placements {
-            guard targetPlacementIDs.contains(placement.id) else {
+            guard let instruction = instructionsByPlacementID[placement.id] else {
                 adjustedPlacements.append(placement)
                 continue
             }
 
             let adjustedFrame: DisplayFrame
 
-            switch rule {
+            switch instruction.rule {
             case .rightOfMain:
-                runningX = max(runningX, anchorPlacement.frame.maxX)
                 adjustedFrame = placement.frame.moved(
-                    toOriginX: runningX,
+                    toOriginX: runningRightX,
                     originY: anchorPlacement.frame.centerY - placement.frame.height / 2
                 )
-                runningX = adjustedFrame.maxX
+                runningRightX = adjustedFrame.maxX
             case .leftOfMain:
-                runningX = min(runningX, anchorPlacement.frame.originX)
                 adjustedFrame = placement.frame.moved(
-                    toOriginX: runningX - placement.frame.width,
+                    toOriginX: runningLeftX - placement.frame.width,
                     originY: anchorPlacement.frame.centerY - placement.frame.height / 2
                 )
-                runningX = adjustedFrame.originX
+                runningLeftX = adjustedFrame.originX
             case .aboveMain:
-                runningY = min(runningY, anchorPlacement.frame.originY)
                 adjustedFrame = placement.frame.moved(
                     toOriginX: anchorPlacement.frame.centerX - placement.frame.width / 2,
-                    originY: runningY - placement.frame.height
+                    originY: runningAboveY - placement.frame.height
                 )
-                runningY = adjustedFrame.originY
+                runningAboveY = adjustedFrame.originY
             case .belowMain:
-                runningY = max(runningY, anchorPlacement.frame.maxY)
                 adjustedFrame = placement.frame.moved(
                     toOriginX: anchorPlacement.frame.centerX - placement.frame.width / 2,
-                    originY: runningY
+                    originY: runningBelowY
                 )
-                runningY = adjustedFrame.maxY
+                runningBelowY = adjustedFrame.maxY
             }
 
-            let finalFrame = adjustedFrame.offsetBy(horizontal: offset.horizontal, vertical: offset.vertical)
+            let finalFrame = adjustedFrame.offsetBy(
+                horizontal: instruction.offset.horizontal,
+                vertical: instruction.offset.vertical
+            )
             adjustedPlacements.append(placement.moved(to: finalFrame))
         }
 

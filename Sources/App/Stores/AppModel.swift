@@ -22,6 +22,7 @@ final class AppModel {
     var lastRunResult: BrightnessRunResult?
     var lastArrangementResult: DisplayArrangementResult?
     var displayLayoutProfiles: [DisplayLayoutProfile] = []
+    var displayPlacementPreferences: [DisplayPlacementPreference] = []
     var selectedDisplayLayoutProfileID: UUID?
     var pendingNewDisplayPrompt: NewDisplayPrompt?
     var keyboardShortcuts: [ShortcutAction: AppKeyboardShortcut] = [:]
@@ -58,10 +59,6 @@ final class AppModel {
         didSet {
             guard oldValue != autoFitEnabled else { return }
             arrangementPreferences.autoFitEnabled = autoFitEnabled
-
-            if autoFitEnabled {
-                applyActiveDisplayLayout()
-            }
         }
     }
 
@@ -88,8 +85,26 @@ final class AppModel {
     }
 
     var activeDisplayLayoutProfile: DisplayLayoutProfile? {
-        guard let selectedDisplayLayoutProfileID else { return displayLayoutProfiles.first }
+        guard let selectedDisplayLayoutProfileID else { return displayLayoutProfileMatchingCurrentDisplays() }
         return displayLayoutProfiles.first { $0.id == selectedDisplayLayoutProfileID }
+    }
+
+    var currentDisplaySetName: String {
+        let deviceNames = arrangementSnapshot.deviceNamesText
+        return deviceNames.isEmpty ? L10n.string("arrangement.current_fit.empty") : deviceNames
+    }
+
+    var isCurrentDisplayLayoutSaved: Bool {
+        displayLayoutProfileMatchingCurrentDisplays() != nil
+    }
+
+    var isCurrentDisplayLayoutDifferentFromSaved: Bool {
+        guard let profile = displayLayoutProfileMatchingCurrentDisplays() else { return false }
+        let currentPlacementsByID = Dictionary(grouping: arrangementSnapshot.placements, by: \.id)
+
+        return profile.placements.contains { savedPlacement in
+            currentPlacementsByID[savedPlacement.id]?.first?.frame != savedPlacement.frame
+        }
     }
 
     init() {
@@ -99,11 +114,13 @@ final class AppModel {
         defaultNewDisplayPlacementRule = arrangementPreferences.defaultNewDisplayPlacementRule
         defaultNewDisplayPlacementOffset = arrangementPreferences.defaultNewDisplayPlacementOffset
         displayLayoutProfiles = arrangementPreferences.layoutProfiles
+        normalizeDeviceProfileNames()
+        displayPlacementPreferences = arrangementPreferences.displayPlacementPreferences
         if let savedProfileID = arrangementPreferences.activeProfileID,
            displayLayoutProfiles.contains(where: { $0.id == savedProfileID }) {
             selectedDisplayLayoutProfileID = savedProfileID
         } else {
-            selectedDisplayLayoutProfileID = displayLayoutProfiles.first?.id
+            selectedDisplayLayoutProfileID = nil
             arrangementPreferences.activeProfileID = selectedDisplayLayoutProfileID
         }
         keyboardShortcuts = Dictionary(
@@ -183,8 +200,9 @@ final class AppModel {
     }
 
     func saveCurrentDisplayLayout() {
+        let snapshot = arrangementSnapshot
         guard let profile = arrangementController.makeProfile(
-            name: defaultDisplayLayoutProfileName(),
+            name: defaultDisplayLayoutProfileName(for: snapshot.placements),
             displays: displays
         ) else {
             lastArrangementResult = DisplayArrangementResult(
@@ -198,10 +216,11 @@ final class AppModel {
             return
         }
 
-        if let selectedDisplayLayoutProfileID,
-           let index = displayLayoutProfiles.firstIndex(where: { $0.id == selectedDisplayLayoutProfileID }) {
+        if let index = displayLayoutProfiles.firstIndex(where: { $0.displaySetID == profile.displaySetID }) {
             displayLayoutProfiles[index].placements = profile.placements
+            displayLayoutProfiles[index].name = profile.name
             displayLayoutProfiles[index].updatedAt = Date()
+            selectDisplayLayoutProfile(displayLayoutProfiles[index].id)
             persistDisplayLayoutProfiles()
             lastArrangementResult = DisplayArrangementResult(
                 status: .saved,
@@ -232,15 +251,18 @@ final class AppModel {
     func deleteSelectedDisplayLayoutProfile() {
         guard let selectedDisplayLayoutProfileID else { return }
         displayLayoutProfiles.removeAll { $0.id == selectedDisplayLayoutProfileID }
-        let nextProfileID = displayLayoutProfiles.first?.id
-        selectDisplayLayoutProfile(nextProfileID)
+        selectDisplayLayoutProfile(displayLayoutProfileMatchingCurrentDisplays()?.id)
         persistDisplayLayoutProfiles()
         lastArrangementResult = nil
     }
 
     func applyActiveDisplayLayout() {
+        applyDisplayLayoutProfile(activeDisplayLayoutProfile)
+    }
+
+    private func applyDisplayLayoutProfile(_ profile: DisplayLayoutProfile?) {
         suppressArrangementHandlingUntil = Date().addingTimeInterval(3)
-        let result = arrangementController.apply(profile: activeDisplayLayoutProfile, to: displays)
+        let result = arrangementController.apply(profile: profile, to: displays)
         lastArrangementResult = result
 
         if !result.isWarning {
@@ -249,8 +271,16 @@ final class AppModel {
         }
     }
 
-    func applyPendingDisplays(using rule: DisplayPlacementRule) {
+    func applyPendingDisplays(using rule: DisplayPlacementRule, remembersPlacement: Bool) {
         guard let pendingNewDisplayPrompt else { return }
+
+        if remembersPlacement {
+            saveDisplayPlacementPreferences(
+                for: pendingNewDisplayPrompt.displays,
+                rule: rule,
+                offset: .zero
+            )
+        }
 
         applyNewDisplays(pendingNewDisplayPrompt.displays, using: rule, offset: .zero)
         self.pendingNewDisplayPrompt = nil
@@ -277,7 +307,7 @@ final class AppModel {
     }
 
     private func handleDisplayChange(flags: CGDisplayChangeSummaryFlags) {
-        refreshDisplays(clearsLastRunResult: false, handlesArrangementChange: flags.shouldTriggerDisplayFit)
+        refreshDisplays(clearsLastRunResult: false, handlesArrangementChange: flags.shouldTriggerDisplayFitOnConnect)
 
         guard autoFullEnabled, flags.shouldTriggerAutoBrightness else { return }
         scheduleAutoBrightnessPass()
@@ -296,7 +326,7 @@ final class AppModel {
     }
 
     private func handleScreenParametersChange() {
-        refreshDisplays(clearsLastRunResult: false, handlesArrangementChange: true)
+        refreshDisplays(clearsLastRunResult: false, handlesArrangementChange: false)
 
         if autoFullEnabled {
             scheduleAutoBrightnessPass()
@@ -323,6 +353,7 @@ final class AppModel {
 
         displays = latestDisplays
         seedKnownDisplaysIfNeeded()
+        syncSelectedProfileWithCurrentDisplays()
 
         if clearsLastRunResult {
             lastRunResult = nil
@@ -360,8 +391,37 @@ final class AppModel {
         }
 
         let snapshot = arrangementSnapshot
+        if let matchingProfile = displayLayoutProfileMatching(snapshot: snapshot) {
+            selectDisplayLayoutProfile(matchingProfile.id)
+            markCurrentDisplaysKnown()
+
+            if autoFitEnabled {
+                applyDisplayLayoutProfile(matchingProfile)
+            }
+
+            return
+        }
+
+        let profiledDisplayIDs = Set(displayLayoutProfiles.flatMap(\.placementIDs))
+        let storedPreferenceDisplays = snapshot.placements.filter { placement in
+            !placement.isBuiltin
+            && !profiledDisplayIDs.contains(placement.id)
+            && displayPlacementPreference(for: placement.id) != nil
+        }
+        let storedPreferenceDisplayIDs = Set(storedPreferenceDisplays.map(\.id))
+
+        if !storedPreferenceDisplays.isEmpty {
+            applyStoredPlacementPreferences(for: storedPreferenceDisplays)
+        }
+
         let knownDisplayIDs = arrangementPreferences.knownDisplayFingerprintIDs
-        let newDisplays = snapshot.placements.filter { !knownDisplayIDs.contains($0.id) }
+        let newDisplays = snapshot.placements.filter {
+            !knownDisplayIDs.contains($0.id) && !storedPreferenceDisplayIDs.contains($0.id)
+        }
+
+        if !storedPreferenceDisplays.isEmpty && newDisplays.isEmpty {
+            return
+        }
 
         if !newDisplays.isEmpty {
             if let defaultNewDisplayPlacementRule {
@@ -374,16 +434,9 @@ final class AppModel {
                 pendingNewDisplayPrompt = NewDisplayPrompt(displays: newDisplays)
             } else {
                 markDisplaysKnown(newDisplays)
-                if autoFitEnabled {
-                    applyActiveDisplayLayout()
-                }
             }
 
             return
-        }
-
-        if autoFitEnabled {
-            applyActiveDisplayLayout()
         }
     }
 
@@ -392,12 +445,22 @@ final class AppModel {
         using rule: DisplayPlacementRule,
         offset: DisplayPlacementOffset
     ) {
-        let targetIDs = Set(placements.map(\.id))
+        let instructionsByPlacementID = Dictionary(
+            uniqueKeysWithValues: placements.map { placement in
+                (placement.id, DisplayPlacementInstruction(rule: rule, offset: offset))
+            }
+        )
+
+        applyNewDisplays(placements, using: instructionsByPlacementID)
+    }
+
+    private func applyNewDisplays(
+        _ placements: [DisplayPlacement],
+        using instructionsByPlacementID: [String: DisplayPlacementInstruction]
+    ) {
         let profile = arrangementController.makePlacementProfile(
-            rule: rule,
-            targetPlacementIDs: targetIDs,
-            displays: displays,
-            offset: offset
+            instructionsByPlacementID: instructionsByPlacementID,
+            displays: displays
         )
 
         suppressArrangementHandlingUntil = Date().addingTimeInterval(3)
@@ -405,6 +468,22 @@ final class AppModel {
         lastArrangementResult = result
         markDisplaysKnown(placements)
         refreshDisplays()
+    }
+
+    private func applyStoredPlacementPreferences(for placements: [DisplayPlacement]) {
+        let instructionsByPlacementID = Dictionary(
+            uniqueKeysWithValues: placements.compactMap { placement -> (String, DisplayPlacementInstruction)? in
+                guard let preference = displayPlacementPreference(for: placement.id) else { return nil }
+
+                return (
+                    placement.id,
+                    DisplayPlacementInstruction(rule: preference.rule, offset: preference.offset)
+                )
+            }
+        )
+
+        guard !instructionsByPlacementID.isEmpty else { return }
+        applyNewDisplays(placements, using: instructionsByPlacementID)
     }
 
     private func seedKnownDisplaysIfNeeded() {
@@ -424,14 +503,89 @@ final class AppModel {
         arrangementPreferences.knownDisplayFingerprintIDs = knownDisplayIDs
     }
 
+    private func displayLayoutProfileMatchingCurrentDisplays() -> DisplayLayoutProfile? {
+        displayLayoutProfileMatching(snapshot: arrangementSnapshot)
+    }
+
+    private func displayLayoutProfileMatching(snapshot: DisplayArrangementSnapshot) -> DisplayLayoutProfile? {
+        guard !snapshot.isEmpty else { return nil }
+        let displaySetID = DisplayLayoutProfile.displaySetID(for: snapshot.placements)
+        return displayLayoutProfiles.first { $0.displaySetID == displaySetID }
+    }
+
+    private func syncSelectedProfileWithCurrentDisplays() {
+        guard let matchingProfile = displayLayoutProfileMatchingCurrentDisplays() else {
+            if selectedDisplayLayoutProfileID != nil {
+                selectedDisplayLayoutProfileID = nil
+                arrangementPreferences.activeProfileID = nil
+            }
+            return
+        }
+
+        if selectedDisplayLayoutProfileID != matchingProfile.id {
+            selectedDisplayLayoutProfileID = matchingProfile.id
+            arrangementPreferences.activeProfileID = matchingProfile.id
+        }
+    }
+
+    private func normalizeDeviceProfileNames() {
+        var didChangeProfiles = false
+
+        for index in displayLayoutProfiles.indices {
+            let deviceNames = displayLayoutProfiles[index].deviceNamesText
+            guard !deviceNames.isEmpty else { continue }
+
+            let deviceName = L10n.string("arrangement.profile.device_name_format", deviceNames)
+            guard displayLayoutProfiles[index].name != deviceName else { continue }
+
+            displayLayoutProfiles[index].name = deviceName
+            didChangeProfiles = true
+        }
+
+        if didChangeProfiles {
+            arrangementPreferences.layoutProfiles = displayLayoutProfiles
+        }
+    }
+
+    private func displayPlacementPreference(for displayID: String) -> DisplayPlacementPreference? {
+        displayPlacementPreferences.first { $0.displayID == displayID }
+    }
+
+    private func saveDisplayPlacementPreferences(
+        for placements: [DisplayPlacement],
+        rule: DisplayPlacementRule,
+        offset: DisplayPlacementOffset
+    ) {
+        guard !placements.isEmpty else { return }
+
+        let placementIDs = Set(placements.map(\.id))
+        displayPlacementPreferences.removeAll { placementIDs.contains($0.displayID) }
+        displayPlacementPreferences.append(contentsOf: placements.map { placement in
+            DisplayPlacementPreference(
+                displayID: placement.id,
+                displayName: placement.displayName,
+                rule: rule,
+                offset: offset,
+                updatedAt: Date()
+            )
+        })
+        displayPlacementPreferences.sort { $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending }
+        arrangementPreferences.displayPlacementPreferences = displayPlacementPreferences
+    }
+
     private func persistDisplayLayoutProfiles() {
         arrangementPreferences.layoutProfiles = displayLayoutProfiles
         arrangementPreferences.activeProfileID = selectedDisplayLayoutProfileID
     }
 
-    private func defaultDisplayLayoutProfileName() -> String {
-        let displayCount = max(displays.count, 1)
-        return L10n.string("arrangement.profile.default_name_format", displayCount)
+    private func defaultDisplayLayoutProfileName(for placements: [DisplayPlacement]) -> String {
+        let deviceNames = DisplayLayoutProfile.deviceNamesText(for: placements)
+        guard !deviceNames.isEmpty else {
+            let displayCount = max(displays.count, 1)
+            return L10n.string("arrangement.profile.default_name_format", displayCount)
+        }
+
+        return L10n.string("arrangement.profile.device_name_format", deviceNames)
     }
 }
 
@@ -465,7 +619,7 @@ private extension CGDisplayChangeSummaryFlags {
         contains(.addFlag) || contains(.enabledFlag) || contains(.setModeFlag)
     }
 
-    var shouldTriggerDisplayFit: Bool {
-        contains(.addFlag) || contains(.enabledFlag) || contains(.setModeFlag)
+    var shouldTriggerDisplayFitOnConnect: Bool {
+        contains(.addFlag) || contains(.enabledFlag)
     }
 }

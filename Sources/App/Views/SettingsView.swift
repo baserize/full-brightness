@@ -5,6 +5,7 @@ struct SettingsView: View {
     @State private var launchAtLoginState = LaunchAtLoginController().state
     @State private var launchAtLoginError: String?
     @State private var shortcutWarning: String?
+    @State private var showsNewDisplayDefaults = false
 
     private let launchAtLoginController = LaunchAtLoginController()
 
@@ -34,12 +35,23 @@ struct SettingsView: View {
                     Label("arrangement.auto_fit_on_connect", systemImage: "wand.and.stars")
                 }
 
-                Toggle(isOn: $model.promptForNewDisplays) {
-                    Label("arrangement.prompt_for_new_displays", systemImage: "questionmark.bubble")
-                }
-                .disabled(model.defaultNewDisplayPlacementRule != nil)
+                DisclosureGroup(isExpanded: $showsNewDisplayDefaults) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Toggle(isOn: $model.promptForNewDisplays) {
+                            Label("arrangement.prompt_for_new_displays", systemImage: "questionmark.bubble")
+                        }
+                        .disabled(model.defaultNewDisplayPlacementRule != nil)
 
-                NewDisplayDefaultPlacementPicker(model: model)
+                        NewDisplayDefaultPlacementPicker(model: model)
+
+                        Text("settings.arrangement.new_display_defaults.help")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 8)
+                } label: {
+                    Label("settings.arrangement.new_display_defaults", systemImage: "display.badge.plus")
+                }
             }
 
             Section("settings.section.general") {

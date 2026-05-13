@@ -3,6 +3,7 @@ import SwiftUI
 struct NewDisplayPromptSheet: View {
     let prompt: NewDisplayPrompt
     @Bindable var model: AppModel
+    @State private var remembersPlacement = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -38,6 +39,11 @@ struct NewDisplayPromptSheet: View {
                 }
             }
 
+            Toggle(isOn: $remembersPlacement) {
+                Label("new_display.action.remember_position", systemImage: "pin")
+            }
+            .toggleStyle(.switch)
+
             Divider()
 
             HStack {
@@ -71,7 +77,7 @@ struct NewDisplayPromptSheet: View {
 
     private func placementButton(for rule: DisplayPlacementRule) -> some View {
         Button {
-            model.applyPendingDisplays(using: rule)
+            model.applyPendingDisplays(using: rule, remembersPlacement: remembersPlacement)
         } label: {
             Label(L10n.string(rule.titleKey), systemImage: rule.systemImage)
                 .frame(maxWidth: .infinity, minHeight: 42)

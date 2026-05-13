@@ -15,6 +15,8 @@
 "settings.section.brightness" = "Brightness";
 "settings.full_level" = "Full brightness level";
 "settings.section.arrangement" = "Display Arrangement";
+"settings.arrangement.new_display_defaults" = "New Display Defaults";
+"settings.arrangement.new_display_defaults.help" = "Ask on connect is the safest default. Set a default position only when your desk layout is predictable.";
 "settings.section.general" = "General";
 "settings.launch_at_login" = "Launch at Login";
 "settings.launch_at_login.requires_approval" = "Approval required in System Settings";
@@ -64,9 +66,16 @@
 "arrangement.profile.none" = "No saved fit";
 "arrangement.profile.empty" = "No saved display fit";
 "arrangement.profile.display_count" = "Displays";
+"arrangement.profile.devices" = "Devices";
 "arrangement.profile.updated" = "Updated";
 "arrangement.profile.default_name_format" = "DisplayFit Layout (%d displays)";
+"arrangement.profile.device_name_format" = "%@ Layout";
 "arrangement.profile.temporary_fit" = "Temporary DisplayFit";
+"arrangement.manage_saved_profiles_format" = "Manage Saved Layouts (%d)";
+"arrangement.current_fit.empty" = "No connected displays";
+"arrangement.current_fit.saved" = "This display set is saved.";
+"arrangement.current_fit.unsaved" = "This display set has not been saved yet.";
+"arrangement.current_fit.changed" = "The current layout differs from the saved layout. Auto Fit will apply on the next display connection.";
 "arrangement.action.save" = "Save";
 "arrangement.action.apply" = "Apply";
 "arrangement.action.save_current" = "Save Current Layout";
@@ -95,6 +104,7 @@
 
 "new_display.title" = "New display detected";
 "new_display.subtitle_format" = "%@ is not in a saved DisplayFit layout yet.";
+"new_display.action.remember_position" = "Remember position for this display";
 "new_display.action.not_now" = "Not Now";
 "new_display.action.save_current" = "Save Current";
 "new_display.action.apply_saved" = "Apply Saved";

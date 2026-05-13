@@ -56,7 +56,7 @@ struct DisplayFrame: Codable, Equatable, Sendable {
     }
 }
 
-struct DisplayPlacementOffset: Codable, Equatable, Sendable {
+struct DisplayPlacementOffset: Codable, Equatable, Hashable, Sendable {
     static let zero = DisplayPlacementOffset(horizontal: 0, vertical: 0)
     static let range = -2_000...2_000
 
@@ -78,6 +78,11 @@ struct DisplayPlacementOffset: Codable, Equatable, Sendable {
     private static func clamped(_ value: Int) -> Int {
         min(max(value, range.lowerBound), range.upperBound)
     }
+}
+
+struct DisplayPlacementInstruction: Equatable, Hashable, Sendable {
+    let rule: DisplayPlacementRule
+    let offset: DisplayPlacementOffset
 }
 
 struct DisplayFingerprint: Codable, Hashable, Sendable {
@@ -175,6 +180,10 @@ struct DisplayArrangementSnapshot: Equatable, Sendable {
     var mainPlacement: DisplayPlacement? {
         placements.first(where: \.isMain) ?? placements.first
     }
+
+    var deviceNamesText: String {
+        DisplayLayoutProfile.deviceNamesText(for: placements)
+    }
 }
 
 struct DisplayLayoutProfile: Codable, Equatable, Identifiable, Sendable {
@@ -205,6 +214,41 @@ struct DisplayLayoutProfile: Codable, Equatable, Identifiable, Sendable {
     var placementIDs: Set<String> {
         Set(placements.map(\.id))
     }
+
+    var displaySetID: String {
+        Self.displaySetID(for: placements)
+    }
+
+    var deviceNamesText: String {
+        Self.deviceNamesText(for: placements)
+    }
+
+    static func displaySetID(for placements: [DisplayPlacement]) -> String {
+        placements.map(\.id).sorted().joined(separator: "|")
+    }
+
+    static func deviceNamesText(for placements: [DisplayPlacement]) -> String {
+        var seenNames: Set<String> = []
+        let names = placements.compactMap { placement -> String? in
+            guard !seenNames.contains(placement.displayName) else { return nil }
+            seenNames.insert(placement.displayName)
+            return placement.displayName
+        }
+
+        return names.joined(separator: " + ")
+    }
+}
+
+struct DisplayPlacementPreference: Codable, Equatable, Identifiable, Sendable {
+    var id: String {
+        displayID
+    }
+
+    let displayID: String
+    var displayName: String
+    var rule: DisplayPlacementRule
+    var offset: DisplayPlacementOffset
+    var updatedAt: Date
 }
 
 struct NewDisplayPrompt: Identifiable, Equatable, Sendable {
@@ -216,7 +260,7 @@ struct NewDisplayPrompt: Identifiable, Equatable, Sendable {
     }
 }
 
-enum DisplayPlacementRule: String, CaseIterable, Codable, Identifiable, Sendable {
+enum DisplayPlacementRule: String, CaseIterable, Codable, Hashable, Identifiable, Sendable {
     case rightOfMain
     case leftOfMain
     case aboveMain

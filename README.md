@@ -4,7 +4,7 @@
 
 DisplayFit is a macOS menu bar utility that restores connected displays to your preferred brightness and desk layout. Use it from the main window, menu bar, Control Center, Shortcuts, Siri, or Spotlight.
 
-Current release: [`2026.05.08.001`](https://github.com/baserize/displayfit/releases/tag/2026.05.08.001)
+Current release: [`2026.05.13.001`](https://github.com/baserize/displayfit/releases/tag/2026.05.13.001)
 
 ## Why
 
@@ -29,6 +29,12 @@ I built DisplayFit for shared desk setups where monitor brightness and arrangeme
 
 - **New display prompt**
   When a new monitor appears, DisplayFit can ask whether to save the current layout, apply a saved fit, or place the display to the left, right, above, or below the main display.
+
+- **Default placement for future displays**
+  Pick where an unseen display should appear before it is connected. Fine tuning is available when you need precise horizontal or vertical offsets.
+
+- **Layout drift warning**
+  If you move displays manually while DisplayFit is already open, the app shows that the current layout differs from the saved fit instead of forcing it back immediately. Auto Fit runs when a display connects.
 
 - **Display support status**
   See which displays are brightness-adjustable and which ones are read-only or unsupported.
@@ -69,17 +75,17 @@ I built DisplayFit for shared desk setups where monitor brightness and arrangeme
 
 ### DMG, Recommended
 
-Download the notarized DMG from the [latest release page](https://github.com/baserize/displayfit/releases/latest), open it, and drag the app to `Applications`.
+Download the DMG from the [latest release page](https://github.com/baserize/displayfit/releases/latest), open it, and drag the app to `Applications`.
 
 Direct download:
 
 ```sh
-curl -L -o DisplayFit-2026.05.08.001.dmg \
-  https://github.com/baserize/displayfit/releases/download/2026.05.08.001/DisplayFit-2026.05.08.001.dmg
-open DisplayFit-2026.05.08.001.dmg
+curl -L -o DisplayFit-2026.05.13.001.dmg \
+  https://github.com/baserize/displayfit/releases/download/2026.05.13.001/DisplayFit-2026.05.13.001.dmg
+open DisplayFit-2026.05.13.001.dmg
 ```
 
-The DMG and app are Developer ID signed and Apple notarized for direct distribution. A ZIP asset is also published for automation and troubleshooting, but the DMG is the default install path.
+The DMG is the default install path. See [INSTALL.md](INSTALL.md) for Homebrew, DMG verification, and macOS Gatekeeper notes. A ZIP asset is also published for automation and troubleshooting.
 
 ### Homebrew
 
@@ -89,6 +95,8 @@ Install through the repo cask tap:
 brew tap baserize/displayfit https://github.com/baserize/displayfit
 brew install --cask displayfit
 ```
+
+If Gatekeeper blocks first launch for an unnotarized build, follow [INSTALL.md](INSTALL.md) before removing quarantine manually.
 
 Or install directly from the cask URL:
 
@@ -152,7 +160,13 @@ DisplayFit reads each connected display's bounds with Core Graphics and saves po
 
 Saved layouts are applied with a Core Graphics display configuration transaction. DisplayFit uses session-level application by default, so a layout can be restored without permanently rewriting the user's macOS display arrangement.
 
-You can also choose the default position for the next new display before it is connected. Set `Next new display default position` in Arrangement or Settings, and DisplayFit will place the new display left, right, above, or below the main display without showing the prompt first. For more exact desk layouts, `Fine tune position` adds horizontal and vertical offsets to that default.
+Saving the current layout creates a device fit keyed by the connected display names and fingerprint set. When the same monitor combination reconnects, DisplayFit selects that profile automatically, and `Auto Fit on connect` applies the saved layout for that device set when a display connection event occurs.
+
+You can also choose the default position for the next new display before it is connected. Set `New Display Defaults` in Settings, and DisplayFit will place the new display left, right, above, or below the main display without showing the prompt first. For more exact desk layouts, the collapsed `Fine tune position` controls add horizontal and vertical offsets to that default.
+
+For an external display that does not have its own device fit yet, the new-display prompt can remember the chosen position for that display, so the next reconnect can use the same placement rule without creating a full device fit.
+
+If you manually rearrange displays while DisplayFit is already open, the app does not immediately restore the saved layout. It shows a warning that the current layout differs from the saved fit, then waits for the next display connection event or an explicit `Apply Saved Fit` action.
 
 Some setups can still be ambiguous:
 
@@ -208,6 +222,6 @@ Artifacts are written to `.build/dist/direct/`. The package script stages `Displ
 
 The current release uses:
 
-- GitHub release tag: `2026.05.08.001`
-- `CFBundleShortVersionString`: `2026.5.8`
-- `CFBundleVersion`: `20260508001`
+- GitHub release tag: `2026.05.13.001`
+- `CFBundleShortVersionString`: `2026.5.13`
+- `CFBundleVersion`: `20260513001`
